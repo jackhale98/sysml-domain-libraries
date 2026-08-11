@@ -1,0 +1,113 @@
+package EnclosureGapExample {
+    doc
+    /*
+     * Tolerance stackup example: assembly clearance gap in a sealed
+     * enclosure. The gap between the housing floor and the cover,
+     * across a compressed gasket, must stay within 0.5..1.5 mm for
+     * proper sealing without over-compression.
+     *
+     * Demonstrates:
+     * - toleranced dimensions declared once, on their features
+     * - a mate between the cover pilot and the housing bore
+     * - a stackup whose contributions reference those dimensions
+     *   through feature chains (no value duplication)
+     *
+     * Evaluate:
+     *   sysml analyze gapAnalysis --method worst-case
+     *   sysml analyze gapAnalysis --method monte-carlo --iterations 50000
+     */
+
+    private import ScalarValues::*;
+    private import Uncertainty::*;
+    private import Tolerancing::*;
+
+    part def Housing {
+        item bore : GeometricFeature {
+            :>> form = FeatureForm::hole;
+            :>> nature = FeatureNature::internal;
+            :>> datum = "B";
+            attribute diameter : ToleratedDimension {
+                :>> nominal = 60.0;
+                :>> plus = 0.05;
+                :>> minus = 0.00;
+            }
+        }
+        attribute depth : ToleratedDimension {
+            doc /* DWG-001 Rev A */
+            :>> nominal = 50.0;
+            :>> plus = 0.1;
+            :>> minus = 0.1;
+        }
+    }
+
+    part def Cover {
+        item pilot : GeometricFeature {
+            :>> form = FeatureForm::shaft;
+            :>> nature = FeatureNature::external;
+            attribute diameter : ToleratedDimension {
+                :>> nominal = 59.9;
+                :>> plus = 0.00;
+                :>> minus = 0.05;
+            }
+        }
+        attribute height : ToleratedDimension {
+            doc /* DWG-002 Rev A */
+            :>> nominal = 45.0;
+            :>> plus = 0.08;
+            :>> minus = 0.08;
+        }
+    }
+
+    part def Gasket {
+        attribute thickness : ToleratedDimension {
+            doc /* Vendor spec; only limits are known, so assume uniform. */
+            :>> nominal = 2.0;
+            :>> plus = 0.15;
+            :>> minus = 0.10;
+            :>> distribution = Distribution::uniform;
+        }
+    }
+
+    part enclosure : Enclosure;
+
+    part def Enclosure {
+        part housing : Housing;
+        part cover : Cover;
+        part gasket : Gasket;
+
+        connection pilotFit : Mate connect cover.pilot to housing.bore {
+            :>> expectedFit = FitType::clearance;
+        }
+
+        analysis gapAnalysis : ToleranceStackup {
+            doc
+            /*
+             * Closing dimension: gap = housing.depth - cover.height
+             *                          - gasket.thickness
+             */
+            attribute :>> target {
+                :>> nominal = 3.0;
+                :>> lower = 2.5;
+                :>> upper = 3.5;
+            }
+            attribute :>> critical = true;
+            attribute :>> meanShiftK = 1.5;
+
+            attribute housingDepth :> contributions {
+                :>> dim = housing.depth;
+                :>> sense = Sense::positive;
+                :>> source = "DWG-001 Rev A";
+            }
+            attribute coverHeight :> contributions {
+                :>> dim = cover.height;
+                :>> sense = Sense::negative;
+                :>> source = "DWG-002 Rev A";
+            }
+            attribute gasketThickness :> contributions {
+                :>> dim = gasket.thickness;
+                :>> sense = Sense::negative;
+                :>> source = "Vendor spec VS-114";
+            }
+        }
+    }
+}
