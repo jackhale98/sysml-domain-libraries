@@ -53,6 +53,9 @@ including ours — is load-bearing.
   worksheet lines checked against the harm's severity anchor, and a risk
   control implemented by a mitigation, satisfied by the BMS, and verified by
   test.
+- `examples/ReliefValve.sysml` — the user guide's running example: a
+  pressure relief valve where a critical travel-gap stackup is the evidence
+  behind an inherent-safety risk control against an overpressure hazard.
 
 ## Using the libraries
 
@@ -90,12 +93,16 @@ tree-sitter pass runs when a built
 [tree-sitter-sysml](https://github.com/jackhale98/tree-sitter-sysml) checkout
 is found (see `scripts/validate.sh`).
 
-## Design
+## Documentation
 
-See [`docs/design.md`](docs/design.md) for the architecture: why the domain
-semantics live in model libraries instead of tool code, the analyzer contract,
-and the roadmap (GD&T bonus tolerance, 3D torsor chains, manufacturing quality
-loop).
+- **[User guide](docs/guide.md)** — from an empty directory to a validated
+  model where a tolerance stackup is the evidence behind a safety risk
+  control, with no SysML v2 experience assumed. Its running example is
+  [`examples/ReliefValve.sysml`](examples/ReliefValve.sysml).
+- **[Design](docs/design.md)** — the architecture: why the domain semantics
+  live in model libraries instead of tool code, the analyzer contract, and
+  the roadmap (GD&T bonus tolerance, 3D torsor chains, FTA/STPA,
+  manufacturing quality loop).
 
 ## License
 

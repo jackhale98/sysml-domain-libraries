@@ -2,22 +2,21 @@
 
 ## Motivation
 
-These libraries replace [Tessera](https://github.com/jackhale98/Tessera), a
-YAML-based engineering-artifact manager covering requirements, risks,
-tolerances, and quality data. Tessera worked, but it reinvented things SysML v2
-already standardizes — entity schemas, links, traceability — and its hardest
-maintenance problems came from duplicating data that a modeling language
-resolves by reference:
+Engineering teams usually manage tolerances, risks, and quality data in
+document-centric tools — spreadsheets, per-entity records, PLM forms. Those
+tools reinvent what SysML v2 already standardizes (entity schemas, links,
+traceability), and their hardest maintenance problems come from duplicating
+data that a modeling language resolves by reference:
 
-- Stackup contributors *cached* feature dimensions and needed `validate --fix`
-  to re-sync them. Here a contributor's `dim` is **bound through a feature
-  chain** (`:>> dim = housing.depth;`) — retolerancing the feature
+- Stackup rows restate feature dimensions and drift out of sync with the
+  drawings they came from. Here a contributor's `dim` is **bound through a
+  feature chain** (`:>> dim = housing.depth;`) — retolerancing the feature
   retolerances every stackup that uses it. There is nothing to sync.
-- RPN was stored next to its factors and could disagree with them. Here RPN is
-  a `calc def` — derived, never stored.
-- Links (`verified_by`, `satisfied_by`) were a parallel bookkeeping system.
-  Here they are the standard `satisfy`/`verify` relationships that any SysML
-  tool — and any generic traceability command — already understands.
+- RPN columns sit next to their factors and can disagree with them. Here RPN
+  is a `calc def` — derived, never stored.
+- Trace links (verified-by, satisfied-by) are parallel bookkeeping. Here they
+  are the standard `satisfy`/`verify` relationships that any SysML tool — and
+  any generic traceability command — already understands.
 
 ## Architecture: semantics in the model, math in the tool
 
@@ -128,29 +127,27 @@ Validation runs both implementations on every file: `sysml check` (semantic:
 resolution, constraints, lints) and `tree-sitter-sysml` (independent syntax
 check). CI-friendly via `make check`.
 
-## Tessera migration map
+## Concept map
 
-| Tessera entity | Library construct |
+Where common engineering artifacts land in the libraries:
+
+| Artifact | Library construct |
 |---|---|
-| CMP / ASM | `part def` / `part` (native SysML) |
-| FEAT + dimensions | `GeometricFeature` item + `ToleratedDimension` attributes |
-| FEAT GD&T controls | `FeatureControlFrame` attributes |
-| MATE | `Mate` connection; fit via `MinClearance`/`MaxClearance` calcs |
-| TOL stackup | `ToleranceStackup` analysis with feature-chain contributions |
-| RISK (FMEA) | `@Fmea` annotation on the affected element |
-| HAZ | `Hazard` occurrence |
-| Mitigation | `Mitigation` action + `satisfy`; verification via `verify` |
-| REQ / TEST | native `requirement` / `verification` (already in SysML) |
-| Status/priority/tags | `metadata def` annotations (future `ProjectMetadata` package) |
-
-A one-time converter from Tessera YAML to these libraries is planned in the
-sysml-cli repo (Tessera's own `tdt export sysml` is the starting point).
+| Component / assembly | `part def` / `part` (native SysML) |
+| Feature with dimensions | `GeometricFeature` item + `ToleratedDimension` attributes |
+| GD&T callout | `FeatureControlFrame` attributes |
+| Fit / mating condition | `Mate` connection; fit via `MinClearance`/`MaxClearance` calcs |
+| Tolerance stackup | `ToleranceStackup` analysis with feature-chain contributions |
+| FMEA worksheet row | `@Fmea` annotation on the affected element |
+| Hazard / harm / situation | `Hazard` / `Harm` / `HazardousSituation` occurrences + `Causation` |
+| Risk control / mitigation | `RiskControl` requirement + `Mitigation` action + `satisfy`/`verify` |
+| Requirement / test | native `requirement` / `verification` (already in SysML) |
+| Status / priority / tags | `metadata def` annotations (future `ProjectMetadata` package) |
 
 ## Roadmap
 
 - **Phase 2 (tooling)**: generic uncertainty analyzer + report engine in
-  sysml-cli (`sysml analyze --method ...`, `sysml report <view>`), math ported
-  from Tessera's tested Rust implementation.
+  sysml-cli (`sysml analyze --method ...`, `sysml report <view>`).
 - **GD&T depth**: bonus tolerance (MMC/LMC) contributions to stackups.
 - **3D chains**: small-displacement-torsor analysis over `Frame3D` placements —
   the one genuinely tool-side solver; models stay declarative.
@@ -159,7 +156,7 @@ sysml-cli repo (Tessera's own `tdt export sysml` is the starting point).
 - **FTA / STPA packages**: RAAML-aligned fault trees (gates over the
   `Causation` graph) and STPA control structures, as optional packages.
 - **`QualityManagement` package**: manufacturing processes, control plans,
-  NCR/CAPA loop (Tessera's PROC/CTRL/NCR/CAPA).
+  and the NCR/CAPA quality loop.
 - **`ProjectMetadata` package**: status workflow, priority, ownership
   annotations.
 - **Editor support**: sysml-mode snippets and completion for the library
