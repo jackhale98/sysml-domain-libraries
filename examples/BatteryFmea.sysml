@@ -1,30 +1,63 @@
 package BatteryFmeaExample {
     doc
     /*
-     * FMEA example: battery pack failure modes with mitigations traced
-     * through standard satisfy/verify relationships.
+     * Hazard-driven FMEA example: battery pack failure modes wired into a
+     * causal risk chain, with mitigations traced through standard
+     * satisfy/verify relationships.
      *
      * Demonstrates:
-     * - @Fmea worksheet annotations, including a pre-mitigation baseline
-     * - a structural Hazard for the safety case
-     * - mitigations linked with `satisfy`, evidence linked with `verify`,
-     *   so generic traceability answers "which high-RPN risks lack
-     *   verified mitigations"
+     * - top-down hazard analysis: Harm (carries severity) <- Hazardous
+     *   Situation (P1/P2) <- Hazard <- FailureMode, linked by Causation
+     * - bottom-up @Fmea worksheet annotations; the thermal-runaway line
+     *   references the hazard (hazardRef), so its severity of 8 is checked
+     *   against the harm's `critical` anchor
+     * - a RiskControl obligation implemented by a Mitigation action,
+     *   satisfied by the BMS and verified by test
      *
      * Report:
      *   sysml report FmeaWorksheet
      *   sysml report RiskMatrix
+     *   sysml report HazardLog
      */
 
     private import ScalarValues::*;
+    private import HazardAnalysis::*;
     private import RiskAnalysis::*;
 
     part def BatteryPack;
     part def Bms;
 
+    // --- Top-down hazard analysis -------------------------------------
+
+    occurrence burnAndPropertyLoss : Harm {
+        :>> description = "Burn injury to operator; loss of vehicle";
+        :>> severity = SeverityScale::critical;
+    }
+
     occurrence fireHazard : Hazard {
         :>> description = "Lithium cell fire during charge or discharge";
     }
+
+    occurrence fireInOperation : HazardousSituation {
+        :>> description = "Cell fire while the vehicle is airborne near people";
+        :>> p1 = 0.001;
+        :>> p2 = 0.7;
+    }
+
+    // --- Bottom-up failure mode, joined to the chain ------------------
+
+    occurrence thermalRunawayFm : FailureMode {
+        :>> cause = "Internal short from dendrite growth";
+        :>> effect = "Cell fire propagating through the pack";
+        :>> occurrence = 2;
+        :>> detection = 4;
+    }
+
+    connection c1 : Causation connect thermalRunawayFm to fireHazard;
+    connection c2 : Causation connect fireHazard to fireInOperation;
+    connection c3 : Causation connect fireInOperation to burnAndPropertyLoss;
+
+    // --- FMEA worksheet -----------------------------------------------
 
     part battery : BatteryPack {
         @Fmea {
@@ -32,12 +65,13 @@ package BatteryFmeaExample {
             cause = "Internal short from dendrite growth";
             effect = "Fire; loss of vehicle";
             category = RiskCategory::design;
-            severity = 9;
+            severity = 8;
             occurrence = 2;
             detection = 4;
-            initialSeverity = 9;
+            initialSeverity = 8;
             initialOccurrence = 4;
             initialDetection = 7;
+            hazardRef = "BatteryFmeaExample::fireHazard";
         }
         @Fmea {
             failureMode = "Capacity fade below 80% before design life";
@@ -52,7 +86,9 @@ package BatteryFmeaExample {
 
     part bms : Bms;
 
-    requirement def <'R-BATT-01'> ThermalCutoffReq {
+    // --- Risk control: obligation, implementation, evidence -----------
+
+    requirement def <'R-BATT-01'> ThermalCutoffReq :> RiskControl {
         doc
         /*
          * The BMS shall disconnect the pack within 500 ms when any cell
@@ -63,10 +99,12 @@ package BatteryFmeaExample {
 
     requirement thermalCutoff : ThermalCutoffReq {
         subject pack = battery;
+        :>> hierarchy = ControlHierarchy::protectiveMeasure;
+        :>> rationale = "Interrupts thermal runaway before propagation";
     }
 
     action overTempCutoff : Mitigation {
-        doc /* BMS over-temperature disconnect covering thermal runaway. */
+        doc /* Work item implementing the thermal cutoff risk control. */
         :>> kind = MitigationKind::prevention;
         :>> status = MitigationStatus::verified;
         :>> owner = "BMS team";

@@ -29,19 +29,30 @@ including ours — is load-bearing.
   `connection def`s with fit calcs, and `ToleranceStackup` analyses whose
   contributors *reference* feature dimensions through feature chains — one
   source of truth, nothing to keep in sync.
-- **`RiskAnalysis`** (`libraries/RiskAnalysis.sysml`) — FMEA on the AIAG/VDA
-  1–10 scales with RPN as a derived calc (never stored, never stale), `@Fmea`
-  worksheet annotations, structural `Hazard`/`FailureMode` occurrences for
-  safety cases, and mitigations traced with standard `satisfy`/`verify`.
+- **`HazardAnalysis`** (`libraries/HazardAnalysis.sysml`) — top-down hazard
+  analysis aligned with the OMG RAAML Core concepts and ISO 14971 /
+  MIL-STD-882E: `Harm` (carries the severity classification),
+  `Hazard`, `HazardousSituation` (P1/P2 probabilities), `Causation` links
+  between risk events, and `RiskControl` requirement obligations with the
+  ISO 14971 control hierarchy.
+- **`RiskAnalysis`** (`libraries/RiskAnalysis.sysml`) — bottom-up FMEA on the
+  AIAG/VDA 1–10 scales with RPN as a derived calc (never stored, never
+  stale), `@Fmea` worksheet annotations, structural `FailureMode` occurrences
+  that join HazardAnalysis causal chains, and mitigations traced with
+  standard `satisfy`/`verify`. Hazard analysis drives the FMEA: a failure
+  mode linked to a hazard derives its severity from the harm at the end of
+  the causal chain.
 
 ## Examples
 
 - `examples/EnclosureGap.sysml` — a sealed-enclosure gap stackup: three parts,
   a pilot-bore mate with expected fit, and a critical stackup with a Bender
   mean-shift factor.
-- `examples/BatteryFmea.sysml` — battery-pack FMEA lines with a pre-mitigation
-  baseline, a structural fire hazard, and a verified mitigation traced through
-  `satisfy`/`verify`.
+- `examples/BatteryFmea.sysml` — hazard-driven battery-pack FMEA: a causal
+  chain from failure mode through hazard and hazardous situation to harm,
+  worksheet lines checked against the harm's severity anchor, and a risk
+  control implemented by a mitigation, satisfied by the BMS, and verified by
+  test.
 
 ## Using the libraries
 

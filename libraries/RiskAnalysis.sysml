@@ -8,9 +8,16 @@ package RiskAnalysis {
      * 1. Lightweight annotation - attach an @Fmea metadata line item to any
      *    element (part, action, process step). Ideal for FMEA worksheets.
      *
-     * 2. Structural hazard analysis - model Hazard and FailureMode as
-     *    first-class occurrences with causal chains, for ISO 14971 /
-     *    MIL-STD-882E style safety cases.
+     * 2. Structural analysis - model FailureMode as a first-class
+     *    occurrence wired into HazardAnalysis causal chains
+     *    (FailureMode -> Hazard -> HazardousSituation -> Harm), for
+     *    ISO 14971 / MIL-STD-882E style safety cases.
+     *
+     * Hazard analysis drives the FMEA: when a failure mode (or @Fmea line,
+     * via hazardRef) links to a hazard, its severity derives top-down from
+     * the harm at the end of that hazard's causal chain - see
+     * HazardAnalysis::SeverityScale for the shared 1-10 anchors. Occurrence
+     * and detection remain bottom-up properties of the failure mode.
      *
      * Ratings follow the AIAG/VDA and SAE J1739 ordinal 1-10 scales:
      *   Severity:   1 = negligible ... 10 = catastrophic, safety hazard
@@ -26,6 +33,7 @@ package RiskAnalysis {
      */
 
     private import ScalarValues::*;
+    private import HazardAnalysis::*;
 
     attribute def FmeaRating :> Integer {
         doc /* Ordinal FMEA rating on the AIAG/VDA 1-10 scale. */
@@ -99,24 +107,26 @@ package RiskAnalysis {
         attribute initialSeverity : FmeaRating[0..1];
         attribute initialOccurrence : FmeaRating[0..1];
         attribute initialDetection : FmeaRating[0..1];
+        attribute hazardRef : String[0..1] {
+            doc
+            /*
+             * Qualified name of the HazardAnalysis::Hazard this failure
+             * mode can precipitate. When set, conforming tools resolve the
+             * hazard's causal chain to its Harm and flag this line if
+             * `severity` disagrees with the harm's SeverityScale anchor.
+             */
+        }
     }
 
-    occurrence def Hazard {
-        doc
-        /*
-         * A potential source of harm (ISO 14971). Hazards are realized
-         * through one or more FailureModes and addressed by Mitigations.
-         */
-        attribute description : String[0..1];
-    }
-
-    occurrence def FailureMode {
+    occurrence def FailureMode :> RiskEvent {
         doc
         /*
          * A specific way an element can fail, with its cause, effect,
          * and FMEA ratings. Use alongside or instead of the @Fmea
-         * annotation when the causal structure itself matters
-         * (fault trees, safety cases).
+         * annotation when the causal structure itself matters. As a
+         * RiskEvent, a FailureMode connects into HazardAnalysis causal
+         * chains with Causation (failure mode -> hazard); its severity
+         * then derives from the harm at the end of the chain.
          */
         attribute cause : String[0..1];
         attribute effect : String[0..1];
@@ -128,8 +138,9 @@ package RiskAnalysis {
     action def Mitigation {
         doc
         /*
-         * An action taken to reduce a risk. Connect it to the risk it
-         * addresses with `satisfy`, and to the evidence of its
+         * An action taken to reduce a risk: the work item that implements
+         * a HazardAnalysis::RiskControl obligation. Connect it to the risk
+         * it addresses with `satisfy`, and to the evidence of its
          * effectiveness with `verify`.
          */
         attribute kind : MitigationKind;

@@ -69,6 +69,43 @@ view by querying the model (e.g. all `@Fmea` annotations), computing derived
 columns via calcs (RPN), and applying the documented sort/pivot. Users can add
 their own `view def`s; nothing distinguishes library views from user views.
 
+## Hazard-driven risk analysis and RAAML alignment
+
+Hazard analysis (top-down) and FMEA (bottom-up) meet through causal links,
+and the libraries make that meeting point structural:
+
+- `HazardAnalysis` models the top-down side: `Harm` carries the severity
+  classification; `HazardousSituation` carries the ISO 14971 P1/P2
+  probabilities; `Causation` connects risk events into chains
+  (`FailureMode -> Hazard -> HazardousSituation -> Harm`).
+- Severity is stated **once, on the harm**. `SeverityScale` gives each class
+  a canonical anchor on the FMEA 1–10 severity line (negligible = 2 …
+  catastrophic = 10). An `@Fmea` line that names a hazard (`hazardRef`) must
+  use the linked harm's anchor as its S rating — a lintable consistency rule,
+  same philosophy as derived RPN. Occurrence and detection remain bottom-up
+  properties of the failure mode.
+- `RiskControl` (a requirement def with the ISO 14971 control hierarchy) is
+  the *obligation*; `RiskAnalysis::Mitigation` actions are the *work items*
+  implementing it; `satisfy`/`verify` provide the closure evidence. "Which
+  hazards lack verified controls" is a generic traceability query.
+
+**RAAML**: OMG's Risk Analysis and Assessment Modeling Language 1.0 is a
+UML/SysML v1 profile and cannot be imported into SysML v2 models, so
+`HazardAnalysis` re-expresses its Core concepts natively. Mapping:
+
+| RAAML Core | Here |
+|---|---|
+| Harm | `Harm` |
+| Hazard | `Hazard` |
+| Situation | `HazardousSituation` |
+| causal relationships | `Causation` |
+| ControllingMeasure | `RiskControl` |
+
+When OMG publishes RAAML for SysML v2, migration should be mechanical
+renames. The RAAML FTA and STPA libraries are intentionally deferred; the
+`Causation` graph is designed to be their substrate (an FTA is this graph
+plus AND/OR gate semantics).
+
 ## Dogfooding findings
 
 Building these libraries against our own toolchain surfaced two cross-file
@@ -81,6 +118,11 @@ resolution bugs in sysml-cli (both fixed there, with regression tests):
 2. `@Fmea` annotations raised a false W013 camelCase note — metadata
    annotation usages take the metadata def's PascalCase name by design, and
    the lint's shadowing exception only looked at same-file defs.
+3. Requirement coverage checks (W002/W003/W014) were file-local: a library
+   `RiskControl` satisfied and verified in another file — through a usage of
+   a *specializing* def — still warned. The checks now consult project-wide
+   satisfy/verify targets resolved through usages and closed over
+   specialization (satisfying `Derived :> Base` satisfies `Base`).
 
 Validation runs both implementations on every file: `sysml check` (semantic:
 resolution, constraints, lints) and `tree-sitter-sysml` (independent syntax
@@ -112,6 +154,10 @@ sysml-cli repo (Tessera's own `tdt export sysml` is the starting point).
 - **GD&T depth**: bonus tolerance (MMC/LMC) contributions to stackups.
 - **3D chains**: small-displacement-torsor analysis over `Frame3D` placements —
   the one genuinely tool-side solver; models stay declarative.
+- **Action Priority**: AIAG-VDA 2019 replaced RPN with an Action Priority
+  table lookup on S/O/D; add an `ActionPriority` calc for automotive users.
+- **FTA / STPA packages**: RAAML-aligned fault trees (gates over the
+  `Causation` graph) and STPA control structures, as optional packages.
 - **`QualityManagement` package**: manufacturing processes, control plans,
   NCR/CAPA loop (Tessera's PROC/CTRL/NCR/CAPA).
 - **`ProjectMetadata` package**: status workflow, priority, ownership
