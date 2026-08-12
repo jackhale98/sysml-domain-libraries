@@ -354,8 +354,12 @@ sysml check -I libraries valve.sysml
 What the checks give you (beyond syntax):
 
 - Unresolved names (W004/W005) — typos in feature chains and `hazardRef`.
-- Library constraints — negative tolerance bounds, ratings outside 1–10,
-  P1/P2 outside 0..1, inverted target limits.
+- Library constraints (W017) — the `assert constraint`s the libraries
+  carry are evaluated against your concrete values: an `@Fmea` line with
+  `severity = 12` is flagged by `FmeaRating`'s 1–10 range, an inverted
+  target by `LimitRange`'s `lower <= nominal and nominal <= upper`.
+  The rules live in the `.sysml` libraries, so any project can add its
+  own by writing constraints — no tool changes.
 - Requirement coverage (W002/W003/W014) — risk controls that nothing
   satisfies or verifies. Coverage is project-wide and understands
   specialization: satisfying `MinTravelReq :> RiskControl` satisfies

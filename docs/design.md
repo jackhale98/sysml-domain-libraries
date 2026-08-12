@@ -139,6 +139,12 @@ Validation runs both implementations on every file: `sysml check` (semantic:
 resolution, constraints, lints) and `tree-sitter-sysml` (independent syntax
 check). CI-friendly via `make check`.
 
+Since sysml-cli's W017, the libraries' `assert constraint`s are *evaluated*
+during `check`: a model value that violates its type's constraint (an FMEA
+rating of 12, an inverted `LimitRange`) is flagged with the constraint's
+own expression. This is the intended division of labor — validation rules
+ship in the library as constraints, and the tool stays generic.
+
 ## Concept map
 
 Where common engineering artifacts land in the libraries:
