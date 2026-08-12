@@ -90,6 +90,18 @@ default `"mm"`; keep one unit per chain.
 Distribution guidance: `normal` for stable machining processes, `uniform`
 when you only know vendor limits, `triangular` for skilled manual assembly.
 
+**Definition or usage?** Put dimension values on the `part def` — they are
+what the drawing says, and every usage inherits them, exactly as every
+physical part is governed by its drawing. Redefine a dimension on a part
+*usage* only when the context genuinely changes the number: a variant
+configuration, selective assembly (a hand-fitted pin), or a lot-specific
+vendor part. Usage values win over definition values when analyses
+resolve a dimension. (A usage-level override currently restates the whole
+dimension — nominal, plus, and minus — rather than merging with the
+definition's values.) Properties that only exist in context, like a
+spring's *installed* length, belong on the usage from the start; the
+spring's *solid height* stays on the def.
+
 ## 4. Features, datums, and GD&T
 
 Dimensions that participate in fits belong on a `GeometricFeature` — an
@@ -195,11 +207,30 @@ restated. Retolerance `spring.solidHeight` on the Spring and this stackup
 sees it immediately. `source` records where each tolerance comes from, for
 the humans reading the report later.
 
-Evaluation (`sysml analyze travelGap --method worst-case | rss |
-monte-carlo`) lands in the next sysml-cli release — the models you write
-today are what it will consume. The three methods are defined by the
-`Uncertainty` package: worst-case interval arithmetic, RSS variance
-propagation (Cp/Cpk, sensitivity), and seeded reproducible Monte Carlo.
+Now evaluate it:
+
+```sh
+sysml analyze run -I libraries valve.sysml -n travelGap
+```
+
+This runs all three methods defined by the `Uncertainty` package —
+worst-case interval arithmetic, RSS variance propagation (Cp/Cpk,
+per-contribution sensitivity), and Monte Carlo — and exits non-zero if
+any evaluated method misses the target, so a failing stackup fails CI.
+Useful variations:
+
+```sh
+sysml analyze run -I libraries valve.sysml -n travelGap --method worst-case
+sysml analyze run -I libraries valve.sysml -n travelGap \
+    --method monte-carlo --iterations 50000 --seed 12345
+sysml -f json analyze run -I libraries valve.sysml -n travelGap
+```
+
+Monte Carlo runs are seeded: the same seed gives bit-for-bit identical
+results, and the seed used is always printed — rerunning any past
+analysis exactly is a one-flag affair (audit trails care about this).
+The RSS sensitivity column tells you which dimension to tighten first
+when a stackup is marginal.
 
 ## 7. FMEA worksheet lines
 
@@ -337,17 +368,21 @@ tree-sitter syntax check.
 
 ## 11. Reports and analysis (what runs today vs. next)
 
-Today, with any sysml-cli ≥ 0.6: `check`, `trace` (requirement/verification
-coverage over the satisfy/verify graph), `diagram`, `list`/`show`/`find`.
+Today, with sysml-cli from source (0.6 + unreleased):
 
-Landing in the next sysml-cli release (the models above are already in the
-right shape):
+- `sysml check` — validation, including the cross-file resolution and
+  requirement-coverage semantics this guide relies on.
+- `sysml analyze run -I libraries <file> -n <case>` — generic uncertainty
+  propagation (section 6) over any analysis with `UncertainValue` inputs.
+- `sysml trace` — requirement/verification coverage over the
+  satisfy/verify graph, which covers risk controls too.
+- `sysml diagram`, `sysml list`/`show`/`find`.
 
-- `sysml analyze travelGap --method worst-case|rss|monte-carlo` — generic
-  uncertainty propagation over any analysis with `UncertainValue` inputs.
+Landing next (the models above are already in the right shape):
+
 - `sysml view FmeaWorksheet` / `RiskMatrix` / `HazardLog` /
   `StackupSummary` / `FitTable` — the `view def`s each library ships,
-  rendered as tables.
+  rendered as tables by the generic view primitive.
 
 ## 12. Quick reference
 

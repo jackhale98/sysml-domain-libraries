@@ -13,8 +13,9 @@ package EnclosureGapExample {
      *   through feature chains (no value duplication)
      *
      * Evaluate:
-     *   sysml analyze gapAnalysis --method worst-case
-     *   sysml analyze gapAnalysis --method monte-carlo --iterations 50000
+     *   sysml analyze run -I libraries examples/EnclosureGap.sysml -n gapAnalysis
+     *   sysml analyze run -I libraries examples/EnclosureGap.sysml \
+     *       -n gapAnalysis --method monte-carlo --iterations 50000 --seed 12345
      */
 
     private import ScalarValues::*;

@@ -158,10 +158,12 @@ Where common engineering artifacts land in the libraries:
 
 ## Roadmap
 
-- **Phase 2 (tooling)**: generic uncertainty analyzer + view renderer in
-  sysml-cli (`sysml analyze --method ...`, `sysml view <name>`), with the
-  library view defs upgraded to real filter expressions and
-  `@TableRendering` specs.
+- **Phase 2 (tooling)**: ~~generic uncertainty analyzer~~ (shipped:
+  `sysml analyze run -n <case> --method worst-case|rss|monte-carlo`,
+  resolving contributions through feature chains, seeded reproducible
+  Monte Carlo); still open: the generic view renderer (`sysml view
+  <name>`) with the library view defs upgraded to real filter
+  expressions and `@TableRendering` specs.
 - **GD&T depth**: bonus tolerance (MMC/LMC) contributions to stackups.
 - **3D chains**: small-displacement-torsor analysis over `Frame3D` placements —
   the one genuinely tool-side solver; models stay declarative.
