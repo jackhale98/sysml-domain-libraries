@@ -12,7 +12,7 @@ implement three *generic* primitives get executable analysis on top:
 |---|---|---|
 | Calc evaluation | Evaluate any `calc` usage, resolving inputs through feature chains | RPN, fit clearance, stackup nominal |
 | Uncertainty propagation | Evaluate a calc/analysis by worst-case, RSS, or Monte Carlo when inputs are `UncertainValue`s | Tolerance stackups, budgets with uncertainty |
-| Model-defined reports | Render `view def`s as tables/pivots | FMEA worksheet, risk matrix, stackup summary |
+| View rendering | Render any `view def` per its declared rendering (tables, pivots, diagrams) | FMEA worksheet, risk matrix, stackup summary |
 
 The [sysml CLI](https://github.com/jackhale98/sysml-cli) implements these
 primitives; the domain semantics stay entirely in the model, so no tool —

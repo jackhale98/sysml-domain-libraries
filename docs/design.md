@@ -60,13 +60,25 @@ attribute (default `"mm"`). All dimensions in one chain must agree; analyzers
 should check and convert. A future revision may move to quantity-typed values
 (`ISQ`/`SI`) once cross-tool support for quantity arithmetic is dependable.
 
-### Reports
+### Views are the reports
 
-`view def`s in the libraries (`FmeaWorksheet`, `RiskMatrix`, `StackupSummary`,
-`FitTable`) document standard tabular renderings. A report engine renders a
-view by querying the model (e.g. all `@Fmea` annotations), computing derived
-columns via calcs (RPN), and applying the documented sort/pivot. Users can add
-their own `view def`s; nothing distinguishes library views from user views.
+There is no report engine and no report command. SysML v2's own view
+machinery is the reporting mechanism: a `view def` specifies what to include
+(`expose` and `filter` expressions — e.g. `filter @RiskAnalysis::Fmea`
+selects every annotated element) and names a rendering for how to present
+it. A single generic verb (`sysml view <name>`) renders whatever a view def
+specifies — tables today, diagrams as the existing diagram machinery folds
+in. Every future domain package ships its own views and gets tool support
+with zero new commands.
+
+Where the standard goes quiet — column expressions, sort order, pivoting —
+the convention is a small `@TableRendering` metadata annotation on the view
+def, so the table spec stays in the model and any tool can implement the
+same behavior. The library view defs (`FmeaWorksheet`, `RiskMatrix`,
+`HazardLog`, `StackupSummary`, `FitTable`) are documented placeholders
+today; they gain real filter expressions and `@TableRendering` specs
+alongside the view renderer. Users add their own `view def`s; nothing
+distinguishes library views from user views.
 
 ## Hazard-driven risk analysis and RAAML alignment
 
@@ -146,8 +158,10 @@ Where common engineering artifacts land in the libraries:
 
 ## Roadmap
 
-- **Phase 2 (tooling)**: generic uncertainty analyzer + report engine in
-  sysml-cli (`sysml analyze --method ...`, `sysml report <view>`).
+- **Phase 2 (tooling)**: generic uncertainty analyzer + view renderer in
+  sysml-cli (`sysml analyze --method ...`, `sysml view <name>`), with the
+  library view defs upgraded to real filter expressions and
+  `@TableRendering` specs.
 - **GD&T depth**: bonus tolerance (MMC/LMC) contributions to stackups.
 - **3D chains**: small-displacement-torsor analysis over `Frame3D` placements —
   the one genuinely tool-side solver; models stay declarative.

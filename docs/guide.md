@@ -345,7 +345,7 @@ right shape):
 
 - `sysml analyze travelGap --method worst-case|rss|monte-carlo` — generic
   uncertainty propagation over any analysis with `UncertainValue` inputs.
-- `sysml report FmeaWorksheet` / `RiskMatrix` / `HazardLog` /
+- `sysml view FmeaWorksheet` / `RiskMatrix` / `HazardLog` /
   `StackupSummary` / `FitTable` — the `view def`s each library ships,
   rendered as tables.
 

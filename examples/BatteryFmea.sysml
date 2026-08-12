@@ -15,9 +15,9 @@ package BatteryFmeaExample {
      *   satisfied by the BMS and verified by test
      *
      * Report:
-     *   sysml report FmeaWorksheet
-     *   sysml report RiskMatrix
-     *   sysml report HazardLog
+     *   sysml view FmeaWorksheet
+     *   sysml view RiskMatrix
+     *   sysml view HazardLog
      */
 
     private import ScalarValues::*;
