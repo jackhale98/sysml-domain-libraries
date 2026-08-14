@@ -34,7 +34,10 @@ jobs:
 
       - name: Build tree-sitter grammar
         working-directory: tree-sitter-sysml
-        run: npm ci
+        # The grammar repo gitignores its lockfile (tree-sitter
+        # convention); tree-sitter-cli is pinned to 0.24.x in
+        # package.json, so a plain install is reproducible enough.
+        run: npm install
 
       - name: Validate
         run: make check
