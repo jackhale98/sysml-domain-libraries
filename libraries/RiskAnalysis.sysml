@@ -49,16 +49,16 @@ package RiskAnalysis {
          *   1-50 low, 51-150 medium, 151-400 high, 401+ critical.
          */
         in severity : FmeaRating;
-        in occurrence : FmeaRating;
+        in 'occurrence' : FmeaRating;
         in detection : FmeaRating;
-        return : Integer = severity * occurrence * detection;
+        return : Integer = severity * 'occurrence' * detection;
     }
 
     enum def RiskCategory {
         doc /* FMEA domain per the source of the failure mode. */
         enum design;
         enum process;
-        enum use;
+        enum 'use';
         enum software;
     }
 
@@ -91,7 +91,7 @@ package RiskAnalysis {
          *           failureMode = "Thermal runaway";
          *           cause = "Internal short from dendrite growth";
          *           effect = "Fire; loss of vehicle";
-         *           severity = 9; occurrence = 3; detection = 4;
+         *           severity = 9; 'occurrence' = 3; detection = 4;
          *       }
          *   }
          *
@@ -103,7 +103,7 @@ package RiskAnalysis {
         attribute effect : String[0..1];
         attribute category : RiskCategory default RiskCategory::design;
         attribute severity : FmeaRating;
-        attribute occurrence : FmeaRating;
+        attribute 'occurrence' : FmeaRating;
         attribute detection : FmeaRating;
         attribute initialSeverity : FmeaRating[0..1];
         attribute initialOccurrence : FmeaRating[0..1];
@@ -132,7 +132,7 @@ package RiskAnalysis {
         attribute cause : String[0..1];
         attribute effect : String[0..1];
         attribute severity : FmeaRating[0..1];
-        attribute occurrence : FmeaRating[0..1];
+        attribute 'occurrence' : FmeaRating[0..1];
         attribute detection : FmeaRating[0..1];
     }
 

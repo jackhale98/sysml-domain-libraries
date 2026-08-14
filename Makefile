@@ -1,4 +1,7 @@
 check:
 	sh scripts/validate.sh
 
-.PHONY: check
+check-pilot:
+	sh scripts/pilot-validate.sh
+
+.PHONY: check check-pilot

@@ -1,5 +1,23 @@
 # Changelog
 
+## Unreleased
+
+- **OMG pilot conformance**: all libraries and examples are now accepted
+  by the OMG SysML v2 Pilot Implementation with zero errors and zero
+  warnings. `make check-pilot` (scripts/pilot-validate.sh) runs the whole
+  repo through the pilot in one session, in dependency order; CI runs it
+  on every push alongside `make check`.
+- **Conformant quoted names**: members whose names collide with SysML
+  keywords are now written in the quoted form the pilot requires —
+  `'occurrence'` (FMEA rating and Rpn parameter), `RiskCategory::'use'`,
+  `FitType::'transition'` — at declaration and reference. The guide
+  explains the rule.
+- **Requirement subject binding**: examples no longer bind a requirement
+  usage's subject both explicitly and via `satisfy ... by`; the satisfy
+  statement is the single binding (the pilot rejects the double bind).
+  BatteryFmea's thermal-cutoff control is satisfied by `battery` (the
+  subject), matching its declared subject type.
+
 ## 0.1.0 — 2026-08-14
 
 First tagged release.

@@ -134,7 +134,7 @@ package ReliefValveExample {
     occurrence valveStuckClosed : FailureMode {
         :>> cause = "Piston seizes in bore; no travel clearance";
         :>> effect = "Valve cannot relieve pressure";
-        :>> occurrence = 3;
+        :>> 'occurrence' = 3;
         :>> detection = 6;
     }
 
@@ -149,7 +149,7 @@ package ReliefValveExample {
             effect = "Valve fails to open; overpressure";
             category = RiskCategory::design;
             severity = 8;
-            occurrence = 3;
+            'occurrence' = 3;
             detection = 6;
             hazardRef = "ReliefValveExample::overpressure";
         }
@@ -165,7 +165,6 @@ package ReliefValveExample {
     }
 
     requirement minTravel : MinTravelReq {
-        subject valve = relief;
         :>> hierarchy = ControlHierarchy::inherentSafety;
         :>> rationale = "Clearance by geometry - no moving parts to fail";
     }

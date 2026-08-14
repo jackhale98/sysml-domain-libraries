@@ -49,7 +49,7 @@ package BatteryFmeaExample {
     occurrence thermalRunawayFm : FailureMode {
         :>> cause = "Internal short from dendrite growth";
         :>> effect = "Cell fire propagating through the pack";
-        :>> occurrence = 2;
+        :>> 'occurrence' = 2;
         :>> detection = 4;
     }
 
@@ -66,7 +66,7 @@ package BatteryFmeaExample {
             effect = "Fire; loss of vehicle";
             category = RiskCategory::design;
             severity = 8;
-            occurrence = 2;
+            'occurrence' = 2;
             detection = 4;
             initialSeverity = 8;
             initialOccurrence = 4;
@@ -77,9 +77,9 @@ package BatteryFmeaExample {
             failureMode = "Capacity fade below 80% before design life";
             cause = "Deep-discharge cycling beyond rated depth";
             effect = "Mission duration shortfall";
-            category = RiskCategory::use;
+            category = RiskCategory::'use';
             severity = 5;
-            occurrence = 6;
+            'occurrence' = 6;
             detection = 3;
         }
     }
@@ -98,7 +98,6 @@ package BatteryFmeaExample {
     }
 
     requirement thermalCutoff : ThermalCutoffReq {
-        subject pack = battery;
         :>> hierarchy = ControlHierarchy::protectiveMeasure;
         :>> rationale = "Interrupts thermal runaway before propagation";
     }
@@ -110,7 +109,7 @@ package BatteryFmeaExample {
         :>> owner = "BMS team";
     }
 
-    satisfy thermalCutoff by bms;
+    satisfy thermalCutoff by battery;
 
     verification def ThermalCutoffTest {
         doc

@@ -247,12 +247,19 @@ part pistonTracked : Piston {
         effect = "Valve fails to open; overpressure";
         category = RiskCategory::design;
         severity = 8;
-        occurrence = 3;
+        'occurrence' = 3;
         detection = 6;
         hazardRef = "ReliefValveExample::overpressure";
     }
 }
 ```
+
+Note the quotes on `'occurrence'`: `occurrence` is a SysML keyword, so
+conformant SysML requires the quoted-name form whenever you reference a
+member that shares its spelling with a keyword (likewise `RiskCategory::'use'`
+and `FitType::'transition'`). Tools built on these libraries accept and
+normalize both, but the quoted form is what the OMG pilot implementation
+accepts.
 
 `hazardRef` is the bridge to the safety model — next section. The optional
 `initialSeverity`/`initialOccurrence`/`initialDetection` fields record the
@@ -283,7 +290,7 @@ occurrence pressurizedOperation : HazardousSituation {
 occurrence valveStuckClosed : FailureMode {
     :>> cause = "Piston seizes in bore; no travel clearance";
     :>> effect = "Valve cannot relieve pressure";
-    :>> occurrence = 3;
+    :>> 'occurrence' = 3;
     :>> detection = 6;
 }
 
@@ -318,13 +325,19 @@ requirement def <'RV-01'> MinTravelReq :> RiskControl {
 }
 
 requirement minTravel : MinTravelReq {
-    subject valve = relief;
     :>> hierarchy = ControlHierarchy::inherentSafety;
     :>> rationale = "Clearance by geometry - no moving parts to fail";
 }
 
 satisfy minTravel by relief;
+```
 
+The `satisfy ... by relief` statement is what binds the requirement's
+subject to the satisfying element — don't also write `subject valve =
+relief;` inside the usage, or the subject ends up bound twice (the pilot
+rejects the override).
+
+```sysml
 verification def TravelClearanceTest {
     subject valve : ReliefValveAsm;
     objective {

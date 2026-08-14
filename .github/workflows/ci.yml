@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  KERNEL_VERSION: "0.57.0"
+
+jobs:
+  validate:
+    name: sysml check + tree-sitter parse
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache sysml CLI
+        id: cache-sysml
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin/sysml
+          key: sysml-cli-${{ runner.os }}-v1
+
+      - name: Install sysml CLI
+        if: steps.cache-sysml.outputs.cache-hit != 'true'
+        run: cargo install --git https://github.com/jackhale98/sysml-cli sysml-cli --locked
+
+      - name: Checkout tree-sitter-sysml
+        uses: actions/checkout@v4
+        with:
+          repository: jackhale98/tree-sitter-sysml
+          path: tree-sitter-sysml
+
+      - name: Build tree-sitter grammar
+        working-directory: tree-sitter-sysml
+        run: npm ci
+
+      - name: Validate
+        run: make check
+        env:
+          TREE_SITTER_SYSML_DIR: ${{ github.workspace }}/tree-sitter-sysml
+
+  pilot:
+    name: OMG pilot implementation oracle
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Cache pilot jar and standard library
+        id: cache-pilot
+        uses: actions/cache@v4
+        with:
+          path: |
+            pilot/jupyter-sysml-kernel-all.jar
+            pilot/sysml.library
+          key: pilot-${{ env.KERNEL_VERSION }}-v1
+
+      - name: Fetch pilot jar (conda-forge jupyter-sysml-kernel)
+        if: steps.cache-pilot.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p pilot
+          curl -sSL -o pilot/kernel.conda \
+            "https://api.anaconda.org/download/conda-forge/jupyter-sysml-kernel/${KERNEL_VERSION}/noarch/jupyter-sysml-kernel-${KERNEL_VERSION}-pyhd8ed1ab_0.conda"
+          unzip -q pilot/kernel.conda -d pilot/conda
+          tar --use-compress-program=unzstd -xf pilot/conda/pkg-*.tar.zst \
+            -C pilot "share/jupyter/kernels/sysml/jupyter-sysml-kernel-${KERNEL_VERSION}-all.jar"
+          mv "pilot/share/jupyter/kernels/sysml/jupyter-sysml-kernel-${KERNEL_VERSION}-all.jar" \
+            pilot/jupyter-sysml-kernel-all.jar
+          rm -rf pilot/kernel.conda pilot/conda pilot/share
+
+      - name: Fetch SysML v2 standard library
+        if: steps.cache-pilot.outputs.cache-hit != 'true'
+        run: |
+          git clone --depth 1 --filter=blob:none --sparse \
+            https://github.com/Systems-Modeling/SysML-v2-Release pilot/release
+          git -C pilot/release sparse-checkout set sysml.library
+          mv pilot/release/sysml.library pilot/sysml.library
+          rm -rf pilot/release
+
+      - name: Validate against pilot
+        run: make check-pilot
+        env:
+          PILOT_JAR: ${{ github.workspace }}/pilot/jupyter-sysml-kernel-all.jar
+          SYSML_STDLIB: ${{ github.workspace }}/pilot/sysml.library

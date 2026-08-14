@@ -138,7 +138,7 @@ package Tolerancing {
     enum def FitType {
         doc /* Classification of a mate per ISO 286 fit categories. */
         enum clearance;
-        enum transition;
+        enum 'transition';
         enum interference;
     }
 
