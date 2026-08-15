@@ -7,6 +7,7 @@ on:
 
 env:
   KERNEL_VERSION: "0.57.0"
+  SYSML_CLI_VERSION: "v0.8.0"
 
 jobs:
   validate:
@@ -20,11 +21,13 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cargo/bin/sysml
-          key: sysml-cli-${{ runner.os }}-v1
+          key: sysml-cli-${{ runner.os }}-${{ env.SYSML_CLI_VERSION }}
 
       - name: Install sysml CLI
         if: steps.cache-sysml.outputs.cache-hit != 'true'
-        run: cargo install --git https://github.com/jackhale98/sysml-cli sysml-cli --locked
+        run: >
+          cargo install --git https://github.com/jackhale98/sysml-cli
+          --tag ${{ env.SYSML_CLI_VERSION }} sysml-cli --locked
 
       - name: Checkout tree-sitter-sysml
         uses: actions/checkout@v4
