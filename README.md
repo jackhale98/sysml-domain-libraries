@@ -90,17 +90,24 @@ automatically.
 
 ## Validation
 
-Every file is validated against two independent implementations on every
+Every file is validated against three independent implementations on every
 change:
 
 ```sh
-make check     # sysml check (semantic) + tree-sitter-sysml (syntactic)
+make check        # sysml check (semantic) + tree-sitter-sysml (syntactic)
+make check-pilot  # OMG SysML v2 Pilot Implementation (conformance oracle)
 ```
 
-Requires [`sysml`](https://github.com/jackhale98/sysml-cli) on PATH; the
-tree-sitter pass runs when a built
+All libraries and examples are accepted by the OMG pilot with zero errors
+and zero warnings — the pilot, not our own tooling, is the conformance
+authority, so the models can't drift into a tool-specific dialect.
+
+`make check` requires [`sysml`](https://github.com/jackhale98/sysml-cli) on
+PATH; the tree-sitter pass runs when a built
 [tree-sitter-sysml](https://github.com/jackhale98/tree-sitter-sysml) checkout
-is found (see `scripts/validate.sh`).
+is found (see `scripts/validate.sh`). `make check-pilot` needs `PILOT_JAR`
+(the jupyter-sysml-kernel all-in-one jar) and `SYSML_STDLIB` (the release's
+`sysml.library`) — see `scripts/pilot-validate.sh`; CI runs both jobs.
 
 ## Documentation
 
