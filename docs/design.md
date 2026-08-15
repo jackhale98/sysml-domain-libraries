@@ -80,6 +80,13 @@ defs (`FmeaWorksheet`, `RiskMatrix`, `HazardLog`, `StackupSummary`,
 render with `sysml view <name>`. Users add their own `view def`s; nothing
 distinguishes library views from user views.
 
+The same move covers scoring policy: `ModelQuality.sysml` declares a
+`QualityScore` calc over a fixed parameter vocabulary (`documented`,
+`typedUsages`, `reqSatisfied`, `reqVerified`, each 0-100) that
+`sysml coverage` evaluates for its overall score. Reweighting the score —
+a safety project caring more about verification than doc coverage — is a
+model edit, not tool configuration.
+
 ## Hazard-driven risk analysis and RAAML alignment
 
 Hazard analysis (top-down) and FMEA (bottom-up) meet through causal links,

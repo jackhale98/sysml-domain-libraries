@@ -42,6 +42,15 @@ including ours — is load-bearing.
   standard `satisfy`/`verify`. Hazard analysis drives the FMEA: a failure
   mode linked to a hazard derives its severity from the harm at the end of
   the causal chain.
+- **`Reporting`** (`libraries/Reporting.sysml`) — the `@TableRendering`
+  convention view defs use to declare their tables (row provider, columns,
+  filter, sort, pivot); any tool that reads it renders the same report.
+- **`StandardViews`** (`libraries/StandardViews.sysml`) — domain-neutral
+  views: `PortTable`, `AllocationMatrix`, `RequirementsTraceMatrix`,
+  `ModelStats`, `ConnectionTable`.
+- **`ModelQuality`** (`libraries/ModelQuality.sysml`) — the `QualityScore`
+  calc `sysml coverage` evaluates for its overall score; import it or
+  declare your own to set the weighting in the model, not tool config.
 
 ## Examples
 

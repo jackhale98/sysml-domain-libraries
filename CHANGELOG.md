@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- **`ModelQuality` package**: a `QualityScore` calc def over the fixed
+  parameter vocabulary `sysml coverage` binds (documented / typedUsages /
+  reqSatisfied / reqVerified, each 0-100). Import it — or declare your
+  own `QualityScore` — and the coverage score's weighting lives in the
+  model instead of tool configuration. Pilot-validated with the rest.
 - **OMG pilot conformance**: all libraries and examples are now accepted
   by the OMG SysML v2 Pilot Implementation with zero errors and zero
   warnings. `make check-pilot` (scripts/pilot-validate.sh) runs the whole

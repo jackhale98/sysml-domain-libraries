@@ -381,25 +381,29 @@ What the checks give you (beyond syntax):
 
 In CI, fail on errors/warnings but allow notes — see `scripts/validate.sh`
 in this repo for a ready-made harness that also runs the independent
-tree-sitter syntax check.
+tree-sitter syntax check. This repo additionally validates every file
+against the OMG pilot implementation (`make check-pilot`), the
+conformance oracle these libraries are held to.
 
-## 11. Reports and analysis (what runs today vs. next)
+## 11. Reports and analysis
 
-Today, with sysml-cli from source (0.6 + unreleased):
+With sysml-cli 0.7+:
 
 - `sysml check` — validation, including the cross-file resolution and
   requirement-coverage semantics this guide relies on.
 - `sysml analyze run -I libraries <file> -n <case>` — generic uncertainty
   propagation (section 6) over any analysis with `UncertainValue` inputs.
-- `sysml trace` — requirement/verification coverage over the
-  satisfy/verify graph, which covers risk controls too.
-- `sysml diagram`, `sysml list`/`show`/`find`.
-
-Landing next (the models above are already in the right shape):
-
-- `sysml view FmeaWorksheet` / `RiskMatrix` / `HazardLog` /
-  `StackupSummary` / `FitTable` — the `view def`s each library ships,
-  rendered as tables by the generic view primitive.
+- `sysml view <Name>` — render any `view def` as a table:
+  `FmeaWorksheet`, `RiskMatrix`, `HazardLog`, `StackupSummary`,
+  `FitTable` from these libraries, plus the general-purpose
+  `StandardViews` (`PortTable`, `RequirementsTraceMatrix`, `ModelStats`,
+  ...). Export with `-f csv` or `-f md`.
+- `sysml trace` — the requirements traceability matrix with coverage,
+  applying the same specialization closure as the checks.
+- `sysml coverage` — model completeness score; import `ModelQuality`
+  (or declare your own `QualityScore` calc) to control the weighting
+  from the model.
+- `sysml diagram`, `sysml list`/`show`.
 
 ## 12. Quick reference
 
