@@ -1,6 +1,11 @@
 # Changelog
 
-## Unreleased
+## 0.2.0 — 2026-08-15
+
+Works with: sysml-cli >= 0.8.0 (likelihood-named FMEA fields, model-side
+gates, chained verify targets). Every file — libraries and examples —
+is accepted by the OMG SysML v2 Pilot Implementation with zero errors
+and zero warnings.
 
 - **Renames for clarity and conformance** (breaking): FMEA `occurrence`
   -> `likelihood` (AIAG "occurrence" collides with the SysML
