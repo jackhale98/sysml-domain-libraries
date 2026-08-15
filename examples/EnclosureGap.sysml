@@ -27,13 +27,13 @@ package EnclosureGapExample {
             :>> form = FeatureForm::hole;
             :>> nature = FeatureNature::internal;
             :>> datum = "B";
-            attribute diameter : ToleratedDimension {
+            attribute diameter : TolerancedDimension {
                 :>> nominal = 60.0;
                 :>> plus = 0.05;
                 :>> minus = 0.00;
             }
         }
-        attribute depth : ToleratedDimension {
+        attribute depth : TolerancedDimension {
             doc /* DWG-001 Rev A */
             :>> nominal = 50.0;
             :>> plus = 0.1;
@@ -45,13 +45,13 @@ package EnclosureGapExample {
         item pilot : GeometricFeature {
             :>> form = FeatureForm::shaft;
             :>> nature = FeatureNature::external;
-            attribute diameter : ToleratedDimension {
+            attribute diameter : TolerancedDimension {
                 :>> nominal = 59.9;
                 :>> plus = 0.00;
                 :>> minus = 0.05;
             }
         }
-        attribute height : ToleratedDimension {
+        attribute height : TolerancedDimension {
             doc /* DWG-002 Rev A */
             :>> nominal = 45.0;
             :>> plus = 0.08;
@@ -60,7 +60,7 @@ package EnclosureGapExample {
     }
 
     part def Gasket {
-        attribute thickness : ToleratedDimension {
+        attribute thickness : TolerancedDimension {
             doc /* Vendor spec; only limits are known, so assume uniform. */
             :>> nominal = 2.0;
             :>> plus = 0.15;

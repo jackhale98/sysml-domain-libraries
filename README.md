@@ -49,8 +49,10 @@ including ours — is load-bearing.
   views: `PortTable`, `AllocationMatrix`, `RequirementsTraceMatrix`,
   `ModelStats`, `ConnectionTable`.
 - **`ModelQuality`** (`libraries/ModelQuality.sysml`) — the `QualityScore`
-  calc `sysml coverage` evaluates for its overall score; import it or
-  declare your own to set the weighting in the model, not tool config.
+  calc `sysml coverage` evaluates for its overall score, plus the
+  `QualityGate` / `TraceGate` constraint defs whose usages gate
+  `coverage --check` and `trace --check`: scoring policy AND shipping
+  thresholds are model content, not tool configuration.
 
 ## Examples
 
@@ -78,7 +80,7 @@ part def Housing {
     item bore : GeometricFeature {
         :>> form = FeatureForm::hole;
         :>> nature = FeatureNature::internal;
-        attribute diameter : ToleratedDimension {
+        attribute diameter : TolerancedDimension {
             :>> nominal = 10.0; :>> plus = 0.1; :>> minus = 0.05;
         }
     }

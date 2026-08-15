@@ -2,6 +2,30 @@
 
 ## Unreleased
 
+- **Renames for clarity and conformance** (breaking): FMEA `occurrence`
+  -> `likelihood` (AIAG "occurrence" collides with the SysML
+  `occurrence` keyword and needed quoting everywhere; likelihood
+  doesn't), `initialOccurrence` -> `initialLikelihood`, and
+  `ToleratedDimension` -> `TolerancedDimension` (drawing-practice term).
+- **Model-side CI gates**: `ModelQuality` adds `QualityGate` and
+  `TraceGate` constraint defs. Declaring a usage (`constraint g :
+  QualityGate { :>> minScore = 80.0; }`) activates the gate that
+  `sysml coverage --check` / `sysml trace --check` evaluate; thresholds
+  are `default` attributes the usage overrides. Pilot-validated,
+  including the usage pattern.
+- **`RiskControl.hazardRef`**: closes the control->hazard side of the
+  ISO 14971 audit trail (harm carries severity, Causation carries the
+  chain, hazardRef links the control), same convention as
+  `Fmea::hazardRef`. Both examples use it.
+- **ReliefValve engineering audit**: the `@Fmea` line moved onto the
+  assembly's actual piston (the free-floating `pistonTracked` part was
+  a phantom BOM entry); requirement and pop-test wording aligned on
+  maximum allowable accumulation (110% of rating, ASME practice); the
+  stackup's upper limit documented (guided engagement); a nested
+  requirement hierarchy (`SYS-01` system obligation containing the
+  `RV-01` risk control) with chain-path satisfy/verify; and a `PopTest`
+  functional verification of the system requirement. Trace closes at
+  100%/100% and the gates assert it.
 - **`ModelQuality` package**: a `QualityScore` calc def over the fixed
   parameter vocabulary `sysml coverage` binds (documented / typedUsages /
   reqSatisfied / reqVerified, each 0-100). Import it — or declare your

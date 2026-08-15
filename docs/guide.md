@@ -66,13 +66,13 @@ it updates. This single idea is why the model beats a spreadsheet.
 
 ## 3. Toleranced dimensions
 
-A `ToleratedDimension` is a value with a nominal, asymmetric bounds, and a
+A `TolerancedDimension` is a value with a nominal, asymmetric bounds, and a
 statistical distribution (from the `Uncertainty` package — `normal` by
 default). Declare dimensions on the parts that own them:
 
 ```sysml
 part def Spring {
-    attribute solidHeight : ToleratedDimension {
+    attribute solidHeight : TolerancedDimension {
         doc /* Vendor limits only - assume uniform. VS-SPR-9 */
         :>> nominal = 1.5;
         :>> plus = 0.1;
@@ -115,13 +115,13 @@ part def ValveBody {
         :>> form = FeatureForm::hole;
         :>> nature = FeatureNature::internal;
         :>> datum = "A";
-        attribute diameter : ToleratedDimension {
+        attribute diameter : TolerancedDimension {
             :>> nominal = 12.0;
             :>> plus = 0.05;
             :>> minus = 0.00;
         }
     }
-    attribute seatDepth : ToleratedDimension {
+    attribute seatDepth : TolerancedDimension {
         :>> nominal = 30.0;
         :>> plus = 0.1;
         :>> minus = 0.1;
@@ -202,6 +202,38 @@ Walk the chain like a loop diagram: dimensions that open the gap are
 `positive`, dimensions that close it are `negative`. Sanity-check the
 nominals by hand: 30.0 − 28.0 − 1.5 = 0.5 ✓ (the target nominal).
 
+Run it — worst-case, RSS, or seeded Monte Carlo. The Monte Carlo run
+prints the sample distribution, so you see the shape of the result, not
+just its statistics (the uniform spring contribution visibly widens the
+flanks):
+
+```
+$ sysml analyze run -I libraries valve.sysml -n travelGap \
+      --method monte-carlo --iterations 20000 --seed 42
+
+  Monte Carlo (20000 iterations, seed 42):
+    Mean: 0.5003   StdDev: 0.0689
+    Range: 0.2804 .. 0.7079   95% CI: [0.3716, 0.6276]
+    Pp: 1.45   Ppk: 1.45   Yield: 100.00%
+    Distribution:
+         0.2804 |                                          10
+         0.3211 | #                                        67
+         0.3618 | ##########                               496
+         0.4026 | #########################                1233
+         0.4433 | #####################################    1834
+         0.4840 | #######################################  1981
+         0.5247 | ######################################## 1987
+         0.5654 | ###############################          1550
+         0.6061 | #############                            646
+         0.6468 | ###                                      127
+         0.6875 |                                          9
+    Result: PASS
+```
+
+(The full output also shows the worst-case interval and RSS Cp/Cpk with
+per-contribution sensitivities; `--method all` runs all three. Identical
+seed, identical results — the histogram is part of the audit trail.)
+
 Each contribution's `dim` is a feature-chain reference — no values are
 restated. Retolerance `spring.solidHeight` on the Spring and this stackup
 sees it immediately. `source` records where each tolerance comes from, for
@@ -235,34 +267,46 @@ when a stackup is marginal.
 ## 7. FMEA worksheet lines
 
 The lightweight risk style: annotate the element whose failure you're
-analyzing with `@Fmea`. Ratings are the AIAG/VDA 1–10 ordinal scales;
-RPN = S × O × D is *derived* by the library's `Rpn` calc, so you never
-write it (and it can never disagree with its factors):
+analyzing with `@Fmea` — here the assembly's actual piston, so the
+worksheet line lives on the part it describes. Ratings are the AIAG/VDA
+1–10 ordinal scales (`likelihood` is AIAG's "occurrence", renamed so it
+doesn't collide with the SysML `occurrence` keyword); RPN = S × L × D is
+*derived* by the library's `Rpn` calc, so you never write it (and it can
+never disagree with its factors):
 
 ```sysml
-part pistonTracked : Piston {
+part piston : Piston {
     @Fmea {
         failureMode = "Piston seizure in bore";
         cause = "Insufficient travel clearance at tolerance extremes";
         effect = "Valve fails to open; overpressure";
         category = RiskCategory::design;
         severity = 8;
-        'occurrence' = 3;
+        likelihood = 3;
         detection = 6;
         hazardRef = "ReliefValveExample::overpressure";
     }
 }
 ```
 
-Note the quotes on `'occurrence'`: `occurrence` is a SysML keyword, so
-conformant SysML requires the quoted-name form whenever you reference a
-member that shares its spelling with a keyword (likewise `RiskCategory::'use'`
-and `FitType::'transition'`). Tools built on these libraries accept and
+`sysml view FmeaWorksheet` renders every annotation, RPN computed and
+sorted:
+
+```
+element  failureMode             cause                                                category              severity  likelihood  detection  rpn
+------------------------------------------------------------------------------------------------------------------------------------------------
+piston   Piston seizure in bore  Insufficient travel clearance at tolerance extremes  RiskCategory::design  8         3           6          144
+```
+
+A note on names: when a member's spelling does collide with a SysML
+keyword, conformant SysML requires the quoted-name form at declaration
+and reference — this is why the libraries write `RiskCategory::'use'`
+and `FitType::'transition'`. Tools built on these libraries accept and
 normalize both, but the quoted form is what the OMG pilot implementation
 accepts.
 
 `hazardRef` is the bridge to the safety model — next section. The optional
-`initialSeverity`/`initialOccurrence`/`initialDetection` fields record the
+`initialSeverity`/`initialLikelihood`/`initialDetection` fields record the
 pre-mitigation baseline so risk reduction stays visible.
 
 ## 8. Hazard-driven safety analysis
@@ -290,7 +334,7 @@ occurrence pressurizedOperation : HazardousSituation {
 occurrence valveStuckClosed : FailureMode {
     :>> cause = "Piston seizes in bore; no travel clearance";
     :>> effect = "Valve cannot relieve pressure";
-    :>> 'occurrence' = 3;
+    :>> likelihood = 3;
     :>> detection = 6;
 }
 
@@ -305,7 +349,7 @@ Two rules make this rigorous:
   to the FMEA severity line (negligible = 2, minor = 4, serious = 6,
   critical = 8, catastrophic = 10). The `@Fmea` line above says
   `severity = 8` because its `hazardRef` chain ends at a `critical` harm —
-  tools flag the line if those disagree. Occurrence and detection stay
+  tools flag the line if those disagree. Likelihood and detection stay
   bottom-up on the failure mode, where the knowledge actually is.
 - **The chain is data.** P1 × P2 gives probability of harm (the
   `HarmProbability` calc), and the causation graph is the future substrate
@@ -313,37 +357,72 @@ Two rules make this rigorous:
 
 ## 9. Risk controls: closing the loop
 
-A `RiskControl` is a requirement whose satisfaction reduces a risk. Declare
-the obligation, say where it sits in the ISO 14971 hierarchy, `satisfy` it
-by the design element that implements it, and `verify` it with evidence:
+A `RiskControl` is a requirement whose satisfaction reduces a risk.
+Declare the system obligation, decompose it into the verifiable slice a
+test can actually close (sub-requirements nest), link the control to the
+hazard it addresses with `hazardRef`, `satisfy` by the design element,
+and `verify` with evidence:
 
 ```sysml
+requirement def <'SYS-01'> OverpressureProtectionReq {
+    doc /* Vessel pressure shall never exceed the maximum allowable
+         * accumulation (110% of rated pressure). */
+    subject valve : ReliefValveAsm;
+}
+
 requirement def <'RV-01'> MinTravelReq :> RiskControl {
     doc /* The piston shall retain at least 0.2 mm travel clearance
          * at worst-case tolerances with the spring at solid height. */
     subject valve : ReliefValveAsm;
 }
 
-requirement minTravel : MinTravelReq {
-    :>> hierarchy = ControlHierarchy::inherentSafety;
-    :>> rationale = "Clearance by geometry - no moving parts to fail";
+requirement overpressureProtection : OverpressureProtectionReq {
+    requirement minTravel : MinTravelReq {
+        :>> hierarchy = ControlHierarchy::inherentSafety;
+        :>> rationale = "Clearance by geometry - no moving parts to fail";
+        :>> hazardRef = "ReliefValveExample::overpressure";
+    }
 }
 
-satisfy minTravel by relief;
+satisfy overpressureProtection by relief;
+satisfy overpressureProtection.minTravel by relief;
 ```
 
 The `satisfy ... by relief` statement is what binds the requirement's
 subject to the satisfying element — don't also write `subject valve =
 relief;` inside the usage, or the subject ends up bound twice (the pilot
-rejects the override).
+rejects the override). Nested requirements are referenced through their
+path (`overpressureProtection.minTravel`), from `verify` statements too:
 
 ```sysml
 verification def TravelClearanceTest {
     subject valve : ReliefValveAsm;
     objective {
-        verify minTravel;
+        verify overpressureProtection.minTravel;
     }
 }
+
+verification def PopTest {
+    doc /* Functional proof of the system obligation. */
+    subject valve : ReliefValveAsm;
+    objective {
+        verify overpressureProtection;
+    }
+}
+```
+
+`sysml trace` shows the closed loop — and understands specialization:
+`RiskControl` itself counts as satisfied because the requirement that
+specializes it is:
+
+```
+Requirement             Satisfied By          Verified By
+------------------------------------------------------------------
+overpressureProtection  relief                PopTest
+minTravel               relief                TravelClearanceTest
+RiskControl             (via specialization)  (via specialization)
+
+Coverage: 3/3 satisfied (100%), 3/3 verified (100%)
 ```
 
 Notice what just happened across sections 6–9: the stackup's lower limit
@@ -385,6 +464,30 @@ tree-sitter syntax check. This repo additionally validates every file
 against the OMG pilot implementation (`make check-pilot`), the
 conformance oracle these libraries are held to.
 
+**Gates live in the model too.** `sysml coverage --check` and
+`sysml trace --check` evaluate constraint usages typed `QualityGate` /
+`TraceGate` (from `ModelQuality`) — so the shipping threshold is a
+reviewed model change, not a CI-config knob:
+
+```sysml
+constraint qualityGate : QualityGate { :>> minScore = 80.0; }
+constraint traceGate : TraceGate;   // defaults: 100% satisfied AND verified
+```
+
+```
+$ sysml coverage -I libraries valve.sysml
+  Documentation:       90%
+  Typed usages:        64%
+  Req satisfaction:    100%
+  Req verification:    100%
+  Overall score:       89%  (model:QualityScore)
+$ sysml coverage --check -I libraries valve.sysml   # exit 0: 89 >= 80
+```
+
+With no gate declared, `--check` is strict (perfect score, everything
+verified) — you relax it by declaring the gate, and the relaxation is
+visible in review.
+
 ## 11. Reports and analysis
 
 With sysml-cli 0.7+:
@@ -392,7 +495,8 @@ With sysml-cli 0.7+:
 - `sysml check` — validation, including the cross-file resolution and
   requirement-coverage semantics this guide relies on.
 - `sysml analyze run -I libraries <file> -n <case>` — generic uncertainty
-  propagation (section 6) over any analysis with `UncertainValue` inputs.
+  propagation (section 6) over any analysis with `UncertainValue` inputs;
+  Monte Carlo runs include the sample-distribution histogram.
 - `sysml view <Name>` — render any `view def` as a table:
   `FmeaWorksheet`, `RiskMatrix`, `HazardLog`, `StackupSummary`,
   `FitTable` from these libraries, plus the general-purpose
@@ -402,14 +506,15 @@ With sysml-cli 0.7+:
   applying the same specialization closure as the checks.
 - `sysml coverage` — model completeness score; import `ModelQuality`
   (or declare your own `QualityScore` calc) to control the weighting
-  from the model.
+  from the model, and gate CI with `QualityGate` / `TraceGate`
+  constraint usages (section 10).
 - `sysml diagram`, `sysml list`/`show`.
 
 ## 12. Quick reference
 
 | You want to say | Use |
 |---|---|
-| "This dimension is 30 ±0.1" | `ToleratedDimension` attribute on the part |
+| "This dimension is 30 ±0.1" | `TolerancedDimension` attribute on the part |
 | "This is a hole / shaft / datum A" | `GeometricFeature` item (`form`, `nature`, `datum`) |
 | "⌖ Ø0.2 Ⓜ A B" | `FeatureControlFrame` in the feature's `controls` |
 | "These two features mate, clearance fit" | `Mate` connection with `expectedFit` |

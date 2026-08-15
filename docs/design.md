@@ -100,7 +100,7 @@ and the libraries make that meeting point structural:
   a canonical anchor on the FMEA 1–10 severity line (negligible = 2 …
   catastrophic = 10). An `@Fmea` line that names a hazard (`hazardRef`) must
   use the linked harm's anchor as its S rating — a lintable consistency rule,
-  same philosophy as derived RPN. Occurrence and detection remain bottom-up
+  same philosophy as derived RPN. Likelihood and detection remain bottom-up
   properties of the failure mode.
 - `RiskControl` (a requirement def with the ISO 14971 control hierarchy) is
   the *obligation*; `RiskAnalysis::Mitigation` actions are the *work items*
@@ -159,7 +159,7 @@ Where common engineering artifacts land in the libraries:
 | Artifact | Library construct |
 |---|---|
 | Component / assembly | `part def` / `part` (native SysML) |
-| Feature with dimensions | `GeometricFeature` item + `ToleratedDimension` attributes |
+| Feature with dimensions | `GeometricFeature` item + `TolerancedDimension` attributes |
 | GD&T callout | `FeatureControlFrame` attributes |
 | Fit / mating condition | `Mate` connection; fit via `MinClearance`/`MaxClearance` calcs |
 | Tolerance stackup | `ToleranceStackup` analysis with feature-chain contributions |

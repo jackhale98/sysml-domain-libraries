@@ -41,4 +41,48 @@ package ModelQuality {
         return : Real = documented * 0.25 + typedUsages * 0.25
                       + reqSatisfied * 0.25 + reqVerified * 0.25;
     }
+
+    constraint def QualityGate {
+        doc
+        /*
+         * CI gate for `sysml coverage --check`. Inert as a definition;
+         * declaring a constraint usage typed by it activates the gate:
+         *
+         *   constraint qualityGate : QualityGate { :>> minScore = 80.0; }
+         *
+         * The tool binds `score` (and the four metric percentages, all
+         * 0-100) and fails the check when the expression is false.
+         * Specialize or write your own gate def to constrain individual
+         * metrics — e.g. `reqVerified >= 90.0 and score >= 70.0`.
+         * With no gate declared, --check requires a perfect score.
+         */
+        in score : Real;
+        in documented : Real;
+        in typedUsages : Real;
+        in reqSatisfied : Real;
+        in reqVerified : Real;
+        attribute minScore : Real default 100.0;
+        score >= minScore
+    }
+
+    constraint def TraceGate {
+        doc
+        /*
+         * CI gate for `sysml trace --check`, activated by a constraint
+         * usage the same way as QualityGate:
+         *
+         *   constraint traceGate : TraceGate { :>> minVerified = 60.0; }
+         *
+         * The tool binds `satisfied`, `verified`, and `traced` (each
+         * 0-100: percent of requirements satisfied, verified, and fully
+         * traced). With no gate declared, --check requires every
+         * requirement satisfied and verified.
+         */
+        in satisfied : Real;
+        in verified : Real;
+        in traced : Real;
+        attribute minSatisfied : Real default 100.0;
+        attribute minVerified : Real default 100.0;
+        satisfied >= minSatisfied and verified >= minVerified
+    }
 }
