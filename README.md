@@ -44,10 +44,9 @@ including ours — is load-bearing.
   the causal chain.
 - **`Reporting`** (`libraries/Reporting.sysml`) — the `@TableRendering`
   convention view defs use to declare their tables (row provider, columns,
-  filter, sort, pivot); any tool that reads it renders the same report.
-- **`StandardViews`** (`libraries/StandardViews.sysml`) — domain-neutral
-  views: `PortTable`, `AllocationMatrix`, `RequirementsTraceMatrix`,
-  `ModelStats`, `ConnectionTable`.
+  filter, sort, pivot) — any tool that reads it renders the same report —
+  plus the domain-neutral views: `PortTable`, `AllocationMatrix`,
+  `RequirementsTraceMatrix`, `ModelStats`, `ConnectionTable`.
 - **`ModelQuality`** (`libraries/ModelQuality.sysml`) — the `QualityScore`
   calc `sysml coverage` evaluates for its overall score, plus the
   `QualityGate` / `TraceGate` constraint defs whose usages gate

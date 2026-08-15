@@ -21,14 +21,13 @@ PILOT_JAR="${PILOT_JAR:?set PILOT_JAR to the jupyter-sysml-kernel all jar}"
 SYSML_STDLIB="${SYSML_STDLIB:?set SYSML_STDLIB to the sysml.library directory}"
 
 # Dependency order: Reporting and Uncertainty first, then the packages
-# that import them, then StandardViews, then the examples.
+# that import them, then the examples.
 FILES="libraries/Reporting.sysml
 libraries/ModelQuality.sysml
 libraries/Uncertainty.sysml
 libraries/Tolerancing.sysml
 libraries/HazardAnalysis.sysml
 libraries/RiskAnalysis.sysml
-libraries/StandardViews.sysml
 examples/EnclosureGap.sysml
 examples/BatteryFmea.sysml
 examples/ReliefValve.sysml"

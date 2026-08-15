@@ -9,7 +9,7 @@ package BatteryFmeaExample {
      * - top-down hazard analysis: Harm (carries severity) <- Hazardous
      *   Situation (P1/P2) <- Hazard <- FailureMode, linked by Causation
      * - bottom-up @Fmea worksheet annotations; the thermal-runaway line
-     *   references the hazard (hazardRef), so its severity of 8 is checked
+     *   references the hazard (a typed ref), so its severity of 8 is checked
      *   against the harm's `critical` anchor
      * - a RiskControl obligation implemented by a Mitigation action,
      *   satisfied by the BMS and verified by test
@@ -71,7 +71,7 @@ package BatteryFmeaExample {
             initialSeverity = 8;
             initialLikelihood = 4;
             initialDetection = 7;
-            hazardRef = "BatteryFmeaExample::fireHazard";
+            hazard = fireHazard;
         }
         @Fmea {
             failureMode = "Capacity fade below 80% before design life";
@@ -100,7 +100,7 @@ package BatteryFmeaExample {
     requirement thermalCutoff : ThermalCutoffReq {
         :>> hierarchy = ControlHierarchy::protectiveMeasure;
         :>> rationale = "Interrupts thermal runaway before propagation";
-        :>> hazardRef = "BatteryFmeaExample::fireHazard";
+        :>> hazard = fireHazard;
     }
 
     action overTempCutoff : Mitigation {

@@ -499,8 +499,8 @@ With sysml-cli 0.7+:
   Monte Carlo runs include the sample-distribution histogram.
 - `sysml view <Name>` — render any `view def` as a table:
   `FmeaWorksheet`, `RiskMatrix`, `HazardLog`, `StackupSummary`,
-  `FitTable` from these libraries, plus the general-purpose
-  `StandardViews` (`PortTable`, `RequirementsTraceMatrix`, `ModelStats`,
+  `FitTable` from these libraries, plus the general-purpose views in
+  `Reporting` (`PortTable`, `RequirementsTraceMatrix`, `ModelStats`,
   ...). Export with `-f csv` or `-f md`.
 - `sysml trace` — the requirements traceability matrix with coverage,
   applying the same specialization closure as the checks.

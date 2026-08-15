@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+- **Typed hazard references** (breaking): `Fmea::hazardRef : String` and
+  `RiskControl::hazardRef : String` are now `ref hazard : Hazard[0..1]`
+  - real model references (pilot-validated), so tools list a hazard's
+  worksheet lines and controls by collecting refs instead of matching
+  strings. Examples bind them unqualified (`hazard = overpressure;`).
+- **StandardViews merged into Reporting** (breaking): the five
+  domain-neutral views (PortTable, AllocationMatrix,
+  RequirementsTraceMatrix, ModelStats, ConnectionTable) live in
+  `Reporting.sysml`; the convention and the generic views that use it
+  are one import. `StandardViews.sysml` is gone.
+
 ## 0.2.0 — 2026-08-15
 
 Works with: sysml-cli >= 0.8.0 (likelihood-named FMEA fields, model-side

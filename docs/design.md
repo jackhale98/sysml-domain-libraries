@@ -76,7 +76,7 @@ the convention is a small `@TableRendering` metadata annotation on the view
 def (see `Reporting.sysml` for the full contract), so the table spec stays
 in the model and any tool can implement the same behavior. The library view
 defs (`FmeaWorksheet`, `RiskMatrix`, `HazardLog`, `StackupSummary`,
-`FitTable`, plus the general-purpose `StandardViews`) carry real specs and
+`FitTable`, plus the general-purpose views in `Reporting`) carry real specs and
 render with `sysml view <name>`. Users add their own `view def`s; nothing
 distinguishes library views from user views.
 

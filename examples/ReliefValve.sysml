@@ -91,7 +91,7 @@ package ReliefValveExample {
                 severity = 8;
                 likelihood = 3;
                 detection = 6;
-                hazardRef = "ReliefValveExample::overpressure";
+                hazard = overpressure;
             }
         }
         part spring : Spring;
@@ -193,7 +193,7 @@ package ReliefValveExample {
         requirement minTravel : MinTravelReq {
             :>> hierarchy = ControlHierarchy::inherentSafety;
             :>> rationale = "Clearance by geometry - no moving parts to fail";
-            :>> hazardRef = "ReliefValveExample::overpressure";
+            :>> hazard = overpressure;
         }
     }
 
