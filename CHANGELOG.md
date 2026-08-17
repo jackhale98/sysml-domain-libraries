@@ -1,6 +1,10 @@
 # Changelog
 
-## Unreleased
+## 0.3.0 — 2026-08-17
+
+Works with: sysml-cli >= 0.9.0. Every file — libraries and examples —
+is accepted by the OMG SysML v2 Pilot Implementation with zero errors
+and zero warnings (`make check-pilot`, run in CI).
 
 - **Typed hazard references** (breaking): `Fmea::hazardRef : String` and
   `RiskControl::hazardRef : String` are now `ref hazard : Hazard[0..1]`
