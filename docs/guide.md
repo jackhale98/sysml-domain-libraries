@@ -501,7 +501,15 @@ With sysml-cli 0.7+:
   `FmeaWorksheet`, `RiskMatrix`, `HazardLog`, `StackupSummary`,
   `FitTable` from these libraries, plus the general-purpose views in
   `Reporting` (`PortTable`, `RequirementsTraceMatrix`, `ModelStats`,
-  ...). Export with `-f csv` or `-f md`.
+  `Bom`, ...). Export with `-f csv` or `-f md`. Each example declares a
+  couple of views of its own — that is how a project tailors a report,
+  and it needs no tool change.
+- `sysml list --type <Type>` — everything that IS a type, following the
+  specialization closure, so `--type Hazard` finds your own subtypes of
+  `Hazard` too.
+- `sysml deps <file> <element> --forward --transitive` — follows
+  `Causation` (or any typed connection) as a directed edge, so a failure
+  mode traces to the harm at the end of the chain.
 - `sysml trace` — the requirements traceability matrix with coverage,
   applying the same specialization closure as the checks.
 - `sysml coverage` — model completeness score; import `ModelQuality`

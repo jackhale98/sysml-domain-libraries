@@ -15,14 +15,17 @@ package BatteryFmeaExample {
      *   satisfied by the BMS and verified by test
      *
      * Report:
-     *   sysml view FmeaWorksheet
-     *   sysml view RiskMatrix
-     *   sysml view HazardLog
+     *   sysml view FmeaWorksheet     (library, generic)
+     *   sysml view RiskMatrix        (library, generic)
+     *   sysml view HazardLog         (library, generic)
+     *   sysml view RiskReduction     (declared below, project-specific)
+     *   sysml view ActionableRisks   (declared below, project-specific)
      */
 
     private import ScalarValues::*;
     private import HazardAnalysis::*;
     private import RiskAnalysis::*;
+    private import Reporting::*;  // @TableRendering, for the views below
 
     part def BatteryPack;
     part def Bms;
@@ -126,5 +129,42 @@ package BatteryFmeaExample {
 
     verification thermalCutoffTest : ThermalCutoffTest {
         subject pack = battery;
+    }
+
+    // --- Project-specific views ---------------------------------------
+    //
+    // The libraries ship generic views; a project tailors its own by
+    // writing `view def`s here. No tool change is needed for either.
+
+    view def RiskReduction {
+        doc
+        /*
+         * What mitigation bought us. The library's FmeaWorksheet reports
+         * current risk only; this pairs it with the pre-mitigation
+         * numbers a line item records in `initialSeverity` /
+         * `initialLikelihood` / `initialDetection`, so the reduction is
+         * visible per failure mode. Line items with no initial values
+         * are unmitigated and drop out of the filter.
+         */
+        @TableRendering {
+            rows = "@Fmea";
+            columns = "failureMode; initialRpn = initialSeverity*initialLikelihood*initialDetection; rpn = severity*likelihood*detection; reduction = initialSeverity*initialLikelihood*initialDetection - severity*likelihood*detection";
+            where = "initialSeverity > 0";
+            sortBy = "-reduction";
+        }
+    }
+
+    view def ActionableRisks {
+        doc
+        /*
+         * The review agenda: line items above this project's RPN action
+         * threshold of 80, worst first.
+         */
+        @TableRendering {
+            rows = "@Fmea";
+            columns = "element; failureMode; category; detection; rpn = severity*likelihood*detection";
+            where = "severity*likelihood*detection >= 80";
+            sortBy = "-rpn";
+        }
     }
 }

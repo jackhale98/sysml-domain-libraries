@@ -255,14 +255,13 @@ package Tolerancing {
     view def FitTable {
         doc
         /*
-         * Connections, one row each. Mate-specific columns (worst-case
-         * min/max clearance from the mated dimensions, computed vs
-         * expected fit) come with the mate row provider planned for the
-         * view engine.
+         * Mates, one row each. The type filter is what keeps this a fit
+         * table: without it every connection in the model would appear,
+         * hazard causations included.
          */
         @TableRendering {
-            rows = "relation:connection";
-            columns = "source; target";
+            rows = "relation:connection:Mate";
+            columns = "connection; source; target";
             sortBy = "source";
         }
     }

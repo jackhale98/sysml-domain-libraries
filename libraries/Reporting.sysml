@@ -41,6 +41,16 @@ package Reporting {
      *                           satisfied, verified)
      *   "kindcounts"            model statistics (kind, definitions,
      *                           usages)
+     *   "composition"           the part/item composition tree — a bill
+     *   "composition:<Root>"    of materials. Columns: element, type,
+     *                           parent, path, depth, quantity, extended
+     *                           (quantity multiplied down the tree), plus
+     *                           any attribute declared on a row's type.
+     *                           Without a root, walks from every
+     *                           definition nothing else uses as a type.
+     *   "relation:connection:<Type>"
+     *                           connections of that type (or a
+     *                           specialization) only
      *   "uncertainty"           evaluated uncertainty analyses (case,
      *                           critical, target limits, worst-case
      *                           range, margin, cp, cpk, result)
@@ -101,6 +111,23 @@ package Reporting {
         @TableRendering {
             rows = "kindcounts";
             columns = "kind; definitions; usages";
+        }
+    }
+
+    view def Bom {
+        doc
+        /*
+         * Bill of materials: the composition tree with per-level and
+         * extended quantities. Add attribute columns the model actually
+         * declares — `mass`, `cost`, `partNumber` — by naming them in
+         * `columns`; they are read off each row's type.
+         *
+         * Export with `sysml view Bom -f csv > bom.csv`.
+         */
+        @TableRendering {
+            rows = "composition";
+            columns = "path; type; quantity; extended; depth";
+            sortBy = "path";
         }
     }
 

@@ -16,11 +16,17 @@ package EnclosureGapExample {
      *   sysml analyze run -I libraries examples/EnclosureGap.sysml -n gapAnalysis
      *   sysml analyze run -I libraries examples/EnclosureGap.sysml \
      *       -n gapAnalysis --method monte-carlo --iterations 50000 --seed 12345
+     *
+     * Report:
+     *   sysml view StackupSummary    (library, generic)
+     *   sysml view FitTable          (library, generic)
+     *   sysml view GapCapability     (declared below, project-specific)
      */
 
     private import ScalarValues::*;
     private import Uncertainty::*;
     private import Tolerancing::*;
+    private import Reporting::*;  // @TableRendering, for the views below
 
     part def Housing {
         item bore : GeometricFeature {
@@ -109,6 +115,27 @@ package EnclosureGapExample {
                 :>> sense = Sense::negative;
                 :>> source = "Vendor spec VS-114";
             }
+        }
+    }
+
+    // --- Project-specific view -----------------------------------------
+    //
+    // The library's StackupSummary reports every column; this is the
+    // gate this project actually reviews. Writing a `view def` is the
+    // whole extension mechanism — no tool change is needed.
+
+    view def GapCapability {
+        doc
+        /*
+         * Process capability gate: stackups whose Cpk falls short of the
+         * 1.33 target, worst first. An empty table is the passing
+         * result.
+         */
+        @TableRendering {
+            rows = "uncertainty";
+            columns = "case; nominal; wcMin; wcMax; margin; cp; cpk; result";
+            where = "cpk < 1.33";
+            sortBy = "cpk";
         }
     }
 }

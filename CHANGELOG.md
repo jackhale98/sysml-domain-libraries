@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.3.1 — 2026-08-18
+
+Works with: sysml-cli >= 0.9.2. Every file — libraries and examples — is
+accepted by the OMG SysML v2 Pilot Implementation with zero errors
+(`make check-pilot`) and by `sysml check` with zero warnings.
+
+- **`FitTable` now lists mates, not every connection.** It selected
+  `relation:connection`, so on a model with a hazard chain the "fit
+  table" reported the causal edges — three causations and no fits on
+  `BatteryFmea`. It now selects `relation:connection:Mate`, which
+  covers any type specializing `Mate`.
+- **`Reporting::Bom`** — a bill of materials over the composition tree:
+  `path`, `type`, `quantity` (usage multiplicity) and `extended`
+  (quantity multiplied down the tree). Connections are excluded; they
+  are structure, not content. Name any attribute the model declares as
+  a column. `sysml view Bom -f csv > bom.csv`.
+- **The examples declare their own views.** `sysml view` on an example
+  used to list only library views; each example now ships the tables
+  its own review would run — `RiskReduction` and `ActionableRisks`
+  (BatteryFmea), `GapCapability` (EnclosureGap), `TightClearances` and
+  `HazardLinkedFailures` (ReliefValve). They demonstrate the extension
+  point: a project tailors reports by writing `view def`s, not by
+  asking for a tool feature.
+- Examples import `Reporting`, which they need for `@TableRendering`.
+
 ## 0.3.0 — 2026-08-17
 
 Works with: sysml-cli >= 0.9.0. Every file — libraries and examples —

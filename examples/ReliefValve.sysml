@@ -12,6 +12,12 @@ package ReliefValveExample {
      * a mate with expected fit, a critical stackup, an @Fmea worksheet
      * line driven by a hazard chain, and a RiskControl satisfied by the
      * design and verified by test.
+     *
+     * Report:
+     *   sysml view StackupSummary        (library, generic)
+     *   sysml view FmeaWorksheet         (library, generic)
+     *   sysml view TightClearances       (declared below, project-specific)
+     *   sysml view HazardLinkedFailures  (declared below, project-specific)
      */
 
     private import ScalarValues::*;
@@ -20,6 +26,7 @@ package ReliefValveExample {
     private import HazardAnalysis::*;
     private import RiskAnalysis::*;
     private import ModelQuality::*;
+    private import Reporting::*;  // @TableRendering, for the views below
 
     // --- Parts and their toleranced geometry ---------------------------
 
@@ -248,5 +255,42 @@ package ReliefValveExample {
          * During development, relax with `:>> minVerified = 60.0;` and
          * raise it back for release.
          */
+    }
+
+    // --- Project-specific views ------------------------------------------
+    //
+    // The generic library views report everything; these two are the
+    // tables this design review actually runs. A `view def` is the whole
+    // extension mechanism — the CLI has no `fmea` or `tolerance` command
+    // because the model, not the tool, decides what a report means.
+
+    view def TightClearances {
+        doc
+        /*
+         * Stackups with less than 0.1 mm of margin to their limits.
+         * `travelGap` is the reason this example exists: it clears by
+         * 0.05 mm, and losing that clearance is the overpressure hazard,
+         * so it belongs on the review agenda even though it passes.
+         */
+        @TableRendering {
+            rows = "uncertainty";
+            columns = "case; critical; nominal; wcMin; wcMax; margin; cpk; result";
+            where = "margin < 0.1";
+            sortBy = "margin";
+        }
+    }
+
+    view def HazardLinkedFailures {
+        doc
+        /*
+         * The join this example is about: worksheet lines that name the
+         * hazard they lead to, so the bottom-up FMEA and the top-down
+         * hazard analysis can be reconciled in one table.
+         */
+        @TableRendering {
+            rows = "@Fmea";
+            columns = "element; failureMode; hazard; severity; rpn = severity*likelihood*detection";
+            sortBy = "-rpn";
+        }
     }
 }

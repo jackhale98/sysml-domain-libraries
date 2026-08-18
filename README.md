@@ -46,7 +46,9 @@ including ours — is load-bearing.
   convention view defs use to declare their tables (row provider, columns,
   filter, sort, pivot) — any tool that reads it renders the same report —
   plus the domain-neutral views: `PortTable`, `AllocationMatrix`,
-  `RequirementsTraceMatrix`, `ModelStats`, `ConnectionTable`.
+  `RequirementsTraceMatrix`, `ModelStats`, `ConnectionTable`, and `Bom`
+  (the composition tree with per-level and extended quantities —
+  `sysml view Bom -f csv > bom.csv`).
 - **`ModelQuality`** (`libraries/ModelQuality.sysml`) — the `QualityScore`
   calc `sysml coverage` evaluates for its overall score, plus the
   `QualityGate` / `TraceGate` constraint defs whose usages gate
