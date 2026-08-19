@@ -129,6 +129,15 @@ is found (see `scripts/validate.sh`). `make check-pilot` needs `PILOT_JAR`
   live in model libraries instead of tool code, the analyzer contract, and
   the roadmap (GD&T bonus tolerance, 3D torsor chains, FTA/STPA,
   manufacturing quality loop).
+- **[MRP plan](docs/mrp-plan.md)** — *proposal, not implemented.* An
+  early-stage MRP built from a SysML bill of materials and a plain-text
+  accounting ledger with lot tracking: a `Procurement` library, a netting
+  script, and hledger 2.0 lots for material genealogy.
+- **[Schedule plan](docs/schedule-plan.md)** — *proposal, not implemented.*
+  Project tasks in a plan file that imports the design model, exported to
+  TaskJuggler for critical path and Gantt: the partition rule that avoids
+  chasing PM-tool feature parity, and the `supplement` seam that keeps
+  generated and hand-authored schedule data apart.
 
 ## License
 

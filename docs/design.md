@@ -188,5 +188,13 @@ Where common engineering artifacts land in the libraries:
   and the NCR/CAPA quality loop.
 - **`ProjectMetadata` package**: status workflow, priority, ownership
   annotations.
+- **`Procurement` package**: part numbers, sourcing, lead times and lot
+  sizing on the composition tree — the model half of an MRP whose
+  inventory state lives in a plain-text ledger. Design plan in
+  [`docs/mrp-plan.md`](mrp-plan.md); no library code yet.
+- **`Schedule` package**: work content and dependency metadata over native
+  `succession`s, in a plan file that imports the design, exported to
+  TaskJuggler for critical path and Gantt. Design plan in
+  [`docs/schedule-plan.md`](schedule-plan.md); no library code yet.
 - **Editor support**: sysml-mode snippets and completion for the library
   vocabulary.

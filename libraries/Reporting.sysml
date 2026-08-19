@@ -37,6 +37,9 @@ package Reporting {
      *   "relation:satisfy"      satisfy relationships (requirement, by)
      *   "relation:verify"       verify relationships (requirement, by)
      *   "relation:connection"   connections (source, target)
+     *   "relation:succession"   succession edges — the dependency graph of
+     *                           an action flow (succession, type, source,
+     *                           target, parent)
      *   "trace"                 requirement coverage (requirement, id,
      *                           satisfied, verified)
      *   "kindcounts"            model statistics (kind, definitions,
@@ -49,7 +52,8 @@ package Reporting {
      *                           Without a root, walks from every
      *                           definition nothing else uses as a type.
      *   "relation:connection:<Type>"
-     *                           connections of that type (or a
+     *   "relation:succession:<Type>"
+     *                           connections/successions of that type (or a
      *                           specialization) only
      *   "uncertainty"           evaluated uncertainty analyses (case,
      *                           critical, target limits, worst-case
@@ -137,6 +141,21 @@ package Reporting {
             rows = "relation:connection";
             columns = "source; target";
             sortBy = "source";
+        }
+    }
+
+    view def SuccessionTable {
+        doc
+        /*
+         * Every succession edge, predecessor to successor — the dependency
+         * graph of an action flow. `type` is the succession's own type,
+         * which is where a project puts its dependency kind (finish-to-
+         * start, start-to-start) by typing the succession.
+         */
+        @TableRendering {
+            rows = "relation:succession";
+            columns = "succession; type; source; target; parent";
+            sortBy = "parent";
         }
     }
 }
