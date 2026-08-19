@@ -60,11 +60,18 @@ including ours — is load-bearing.
 - `examples/EnclosureGap.sysml` — a sealed-enclosure gap stackup: three parts,
   a pilot-bore mate with expected fit, and a critical stackup with a Bender
   mean-shift factor.
-- `examples/BatteryFmea.sysml` — hazard-driven battery-pack FMEA: a causal
-  chain from failure mode through hazard and hazardous situation to harm,
-  worksheet lines checked against the harm's severity anchor, and a risk
-  control implemented by a mitigation, satisfied by the BMS, and verified by
-  test.
+- `examples/ShaftFits.sysml` — one Ø20 H7 bore against a g6, k6 and p6
+  shaft, giving a clearance, a transition and an interference fit from the
+  same hole. The fit type is computed, not declared: each mate is paired
+  with a two-term stackup whose worst case is the clearance at MMC and at
+  LMC, so the signs classify it. ISO 286 limits, plus an axial chain that
+  is not a fit and a project-local acceptance policy.
+- `examples/BatteryFmea.sysml` — hazard-driven battery-pack FMEA: six
+  hazards on their own causal chains to five harms spanning the whole
+  severity scale, eight worksheet lines across all four risk categories
+  each checked against its harm's severity anchor, and risk controls at
+  all three levels of the ISO 14971 hierarchy, implemented by mitigations
+  and closed by satisfy/verify.
 - `examples/ReliefValve.sysml` — the user guide's running example: a
   pressure relief valve where a critical travel-gap stackup is the evidence
   behind an inherent-safety risk control against an overpressure hazard.

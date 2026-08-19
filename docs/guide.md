@@ -504,6 +504,11 @@ With sysml-cli 0.7+:
   `Bom`, ...). Export with `-f csv` or `-f md`. Each example declares a
   couple of views of its own — that is how a project tailors a report,
   and it needs no tool change.
+- `sysml analyze run -n <case>` — and where PASS / MARGINAL / FAIL falls
+  is yours: `UncertaintyAnalysis::marginalFraction` (default 0.10) is the
+  fraction of the tolerance band within which a positive margin still
+  reads MARGINAL. Override it per analysis or across a class of them
+  (`examples/ShaftFits.sysml` defines a stricter `CriticalFit`).
 - `sysml list --type <Type>` — everything that IS a type, following the
   specialization closure, so `--type Hazard` finds your own subtypes of
   `Hazard` too.

@@ -1,5 +1,45 @@
 # Changelog
 
+## 0.4.0 — 2026-08-18
+
+Works with: sysml-cli >= 0.9.3. Every file is accepted by the OMG SysML
+v2 Pilot Implementation with zero errors and zero warnings, and by
+`sysml check` with zero warnings.
+
+### Acceptance policy is model content
+- **`UncertaintyAnalysis::marginalFraction`** (default 0.10) decides
+  when a positive margin still reports MARGINAL instead of PASS. It was
+  a constant inside the analyzer; a project now tunes it here, on a
+  single analysis or across a class of them by specializing the def.
+  Editing this library changes the verdicts, with no tool change.
+
+### Examples
+- **`examples/ShaftFits.sysml`** — one Ø20 H7 bore mated to a g6, a k6
+  and a p6 shaft, giving a clearance, a transition and an interference
+  fit from the same hole. Nothing declares the fit type: each mate is
+  paired with a two-term stackup whose worst-case range is the fit, so
+  `wcMin` is the clearance at MMC and `wcMax` at LMC and the pair of
+  signs classifies it. Limits are ISO 286 for the 18..30 mm step. Also
+  carries an axial chain that is not a fit, and a project `CriticalFit`
+  def holding the two critical-to-quality fits to a stricter marginal
+  band than the library default.
+- **`examples/BatteryFmea.sysml` expanded** from 2 worksheet lines to 8,
+  across all four RiskCategory values, with six hazards each on its own
+  causal chain and five harms spanning the whole SeverityScale. Risk
+  controls now cover all three levels of the ISO 14971 hierarchy, with
+  Mitigation actions in both kinds and four of the four statuses. Two
+  chains converge on one harm, which is the point: the severity of a
+  worksheet line is the anchor of the harm its hazard leads to, so a
+  software failure and a cell defect that end the same way rate the
+  same without anyone coordinating.
+- Requirement and verification subjects are typed by the component they
+  constrain rather than all by the pack, which is what the pilot's
+  "bound features should have conforming types" warning was pointing at.
+- New project views: `SoftwareRisks` and `UndetectableRisks` (a
+  high-severity failure nobody can see coming does not surface on an
+  RPN-sorted sheet), `ControlCoverage`, `ToleranceAnalysis`,
+  `PressFits`.
+
 ## 0.3.1 — 2026-08-18
 
 Works with: sysml-cli >= 0.9.2. Every file — libraries and examples — is

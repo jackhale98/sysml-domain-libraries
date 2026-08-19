@@ -112,11 +112,33 @@ package Uncertainty {
          * seed         Optional Monte Carlo seed. Fixing the seed makes runs
          *              bit-for-bit reproducible; analyzers must record the
          *              seed used in their output either way.
+         *
+         * marginalFraction
+         *              acceptance policy, not arithmetic: a result whose
+         *              margin is positive but below this fraction of the
+         *              tolerance band reports MARGINAL rather than PASS.
+         *              A negative margin is always FAIL. 0.10 means "within
+         *              10% of a limit is too close to call a pass"; raise it
+         *              to make reviews stricter, set it to 0 to report only
+         *              PASS and FAIL.
+         *
+         * Every one of these is a default a model can override — on an
+         * individual analysis (`attribute :>> marginalFraction = 0.25;`)
+         * or across a class of them by specializing this def:
+         *
+         *   analysis def SafetyCriticalStackup :> ToleranceStackup {
+         *       attribute :>> marginalFraction = 0.25;
+         *       attribute :>> meanShiftK = 1.5;
+         *   }
+         *
+         * Where a verdict comes from is a project decision, so it lives
+         * here rather than in whatever tool happens to evaluate it.
          */
         attribute target : LimitRange;
         attribute sigmaLevel : Real default 6.0;
         attribute meanShiftK : Real default 0.0;
         attribute iterations : Integer default 10000;
         attribute seed : Integer[0..1];
+        attribute marginalFraction : Real default 0.10;
     }
 }

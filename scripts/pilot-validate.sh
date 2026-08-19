@@ -30,7 +30,8 @@ libraries/HazardAnalysis.sysml
 libraries/RiskAnalysis.sysml
 examples/EnclosureGap.sysml
 examples/BatteryFmea.sysml
-examples/ReliefValve.sysml"
+examples/ReliefValve.sysml
+examples/ShaftFits.sysml"
 
 INPUT=$(mktemp); OUTPUT=$(mktemp); MAP=$(mktemp)
 trap 'rm -f "$INPUT" "$OUTPUT" "$MAP"' EXIT
